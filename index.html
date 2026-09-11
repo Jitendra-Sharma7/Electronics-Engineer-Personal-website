@@ -1,1177 +1,1293 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Primary SEO Meta Tags -->
-    <title>Jitendra Sharma | Electronics & Communication Engineer Portfolio</title>
-    <meta name="description"
-        content="Portfolio of Jitendra Sharma, an Electronics & Communication Engineer specializing in embedded systems, IoT, DSP and communication systems. View projects, skills & experience.">
-    <meta name="keywords"
-        content="Jitendra Sharma, Electronics Engineer, Communication Engineer, Embedded Systems Engineer, VLSI, IoT Developer, ESP32 Projects, Nepal Engineer Portfolio">
-    <meta name="author" content="Jitendra Sharma">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <meta name="googlebot" content="index, follow">
-    <link rel="canonical" href="https://www.jitendra-sharma.com.np/" />
+  <!-- Zero-FOUC Theme Initialization -->
+  <meta name="color-scheme" content="dark light">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('site_theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
 
-    <!-- Local / Geo SEO -->
-    <meta name="geo.region" content="NP-P3">
-    <meta name="geo.placename" content="Kathmandu, Nepal">
-    <meta name="geo.position" content="27.7050092;85.3189786">
-    <meta name="ICBM" content="27.7050092, 85.3189786">
+  <!-- Primary SEO Meta Tags -->
+  <title>Jitendra Sharma | Software Developer, AI Engineer & IT Infrastructure Professional</title>
+  <meta name="description"
+    content="Portfolio of Jitendra Sharma — Software Developer, AI Engineer, and IT Infrastructure Professional specializing in software development, cloud, networking, security, and intelligent digital solutions.">
+  <meta name="keywords"
+    content="Jitendra Sharma, Software Developer, AI Engineer, IT Infrastructure, Cloud Engineer, Cybersecurity, Full-Stack Developer, Network Administrator, Nepal, Kathmandu">
+  <meta name="author" content="Jitendra Sharma">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://www.jitendra-sharma.com.np/" />
 
-    <!-- Language / Locale -->
-    <meta http-equiv="content-language" content="en">
-    <link rel="alternate" href="https://www.jitendra-sharma.com.np/" hreflang="en">
-    <link rel="alternate" href="https://www.jitendra-sharma.com.np/" hreflang="x-default">
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.jitendra-sharma.com.np/">
+  <meta property="og:title" content="Jitendra Sharma | Software Developer & AI Engineer">
+  <meta property="og:description"
+    content="Building secure, scalable, and intelligent digital solutions across software, infrastructure, cloud, security, and AI operations.">
+  <meta property="og:image" content="https://www.jitendra-sharma.com.np/images/jitendra.jpeg">
+  <meta property="og:site_name" content="Jitendra Sharma Portfolio">
 
-    <!-- Sitemap -->
-    <link rel="sitemap" type="application/xml" href="/sitemap.xml">
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jitendra Sharma | Software Developer & AI Engineer">
+  <meta name="twitter:description"
+    content="Building secure, scalable, and intelligent digital solutions across software, infrastructure, cloud, security, and AI operations.">
+  <meta name="twitter:image" content="https://www.jitendra-sharma.com.np/images/jitendra.jpeg">
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.jitendra-sharma.com.np/">
-    <meta property="og:title" content="Jitendra Sharma | Electronics & Communication Engineer">
-    <meta property="og:description"
-        content="Portfolio showcasing embedded systems, IoT and communication engineering projects, skills and experience.">
-    <meta property="og:image" content="https://www.jitendra-sharma.com.np/assets/og-image.jpg">
-    <meta property="og:image:secure_url" content="https://www.jitendra-sharma.com.np/assets/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Jitendra Sharma - Electronics & Communication Engineer Portfolio">
-    <meta property="og:locale" content="en_US">
-    <meta property="og:site_name" content="Jitendra Sharma Portfolio">
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#07090e">
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://www.jitendra-sharma.com.np/">
-    <meta name="twitter:title" content="Jitendra Sharma | Electronics & Communication Engineer">
-    <meta name="twitter:description"
-        content="Portfolio showcasing embedded systems, IoT and communication engineering projects, skills and experience.">
-    <meta name="twitter:image" content="https://www.jitendra-sharma.com.np/assets/og-image.jpg">
-    <meta name="twitter:image:alt" content="Jitendra Sharma - Electronics & Communication Engineer Portfolio">
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
 
-    <!-- Theme -->
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="msapplication-TileColor" content="#0a0a0a">
-    <meta name="format-detection" content="telephone=yes">
-    <meta name="application-name" content="Jitendra Sharma Portfolio">
-    <meta name="apple-mobile-web-app-title" content="Jitendra Sharma">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Structured Data: Person Schema -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Jitendra Sharma",
-        "url": "https://www.jitendra-sharma.com.np/",
-        "jobTitle": "Electronics & Communication Engineer",
-        "email": "mailto:jitendra.citizeninfotechnepal@gmail.com",
-        "telephone": "+977-9868909630",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "28 Bagbazar",
-            "addressLocality": "Kathmandu",
-            "addressCountry": "NP"
-        },
-        "sameAs": [
-            "https://github.com/Jitendra83-coder",
-            "https://www.linkedin.com/in/jitendra-sharma-25b5ab20a",
-            "https://www.facebook.com/s.jitendra83/",
-            "https://www.instagram.com/s.jitendra83/",
-            "https://www.tiktok.com/@soul_mate61"
-        ],
-        "alumniOf": {
-            "@type": "CollegeOrUniversity",
-            "name": "Jawaharlal Nehru Technological University Hyderabad"
-        },
-        "knowsAbout": ["Embedded Systems", "Communication Systems", "Digital Electronics", "IoT", "VLSI", "Signal Processing"],
-        "inLanguage": "en"
-    }
-    </script>
-
-    <!-- Structured Data: WebSite Schema -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Jitendra Sharma Portfolio",
-        "url": "https://www.jitendra-sharma.com.np/",
-        "description": "Portfolio of Jitendra Sharma, an Electronics & Communication Engineer specializing in embedded systems, IoT, DSP and communication systems.",
-        "inLanguage": "en",
-        "author": {
-            "@type": "Person",
-            "name": "Jitendra Sharma"
-        }
-    }
-    </script>
-
-    <!-- Structured Data: Breadcrumb Schema -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.jitendra-sharma.com.np/#home"},
-            {"@type": "ListItem", "position": 2, "name": "About", "item": "https://www.jitendra-sharma.com.np/#about"},
-            {"@type": "ListItem", "position": 3, "name": "Skills", "item": "https://www.jitendra-sharma.com.np/#skills"},
-            {"@type": "ListItem", "position": 4, "name": "Projects", "item": "https://www.jitendra-sharma.com.np/#projects"},
-            {"@type": "ListItem", "position": 5, "name": "Experience", "item": "https://www.jitendra-sharma.com.np/#experience"},
-            {"@type": "ListItem", "position": 6, "name": "Certificates", "item": "https://www.jitendra-sharma.com.np/#certifications"},
-            {"@type": "ListItem", "position": 7, "name": "Contact", "item": "https://www.jitendra-sharma.com.np/#contact"}
-        ]
-    }
-    </script>
+  <!-- Structured Data JSON-LD (Person & WebSite Schema) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Jitendra Sharma",
+    "url": "https://www.jitendra-sharma.com.np/",
+    "jobTitle": "Software Developer | AI Engineer | Networks, Security & Cloud",
+    "email": "mailto:jitendra.citizeninfotechnepal@gmail.com",
+    "telephone": "+9779868909630",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "28 Bagbazar",
+      "addressLocality": "Kathmandu",
+      "addressCountry": "NP"
+    },
+    "sameAs": [
+      "https://github.com/Jitendra83-coder",
+      "https://www.linkedin.com/in/jitendra-sharma-25b5ab20a"
+    ],
+    "knowsAbout": [
+      "Software Development",
+      "AI Engineering",
+      "IT Infrastructure",
+      "Linux Server Administration",
+      "Network Security",
+      "Cloud Fundamentals",
+      "Database Management",
+      "Electronic Systems"
+    ]
+  }
+  </script>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav id="navbar">
-        <div class="nav-container">
-            <a href="#home" class="logo">
-                <div class="logo-img">
-                    <span class="logo-text">Er.Jitendra</span>
-                </div>
+
+  <!-- ======================================================================
+       1. Sticky Navigation Header
+       ====================================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#home" class="logo" aria-label="Jitendra Sharma Home">
+        <div class="logo-badge">JS</div>
+        <div class="logo-text">
+          <span class="logo-name">Jitendra Sharma</span>
+          <span class="logo-sub">SOFTWARE / AI / INFRA</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Menu -->
+      <nav class="nav-menu" aria-label="Main Navigation">
+        <a href="#about" class="nav-link" data-i18n="nav_about">About</a>
+        <a href="#projects" class="nav-link" data-i18n="nav_projects">Projects</a>
+        <a href="#experience" class="nav-link" data-i18n="nav_experience">Experience</a>
+        <a href="#skills" class="nav-link" data-i18n="nav_skills">Skills</a>
+        <a href="#certifications" class="nav-link" data-i18n="nav_certifications">Certifications</a>
+        <a href="#blog" class="nav-link" data-i18n="nav_blog">Blog</a>
+        <a href="#learning" class="nav-link" data-i18n="nav_learning">Learning</a>
+        <a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a>
+      </nav>
+
+      <!-- Right Action Controls -->
+      <div class="nav-actions">
+        <!-- Language Switcher -->
+        <button type="button" class="lang-btn" id="langToggleBtn" aria-label="Toggle Language (English / Nepali)">
+          <i class="fas fa-globe"></i>
+          <span id="langBtnText">EN</span>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark/Light Theme">
+          <i class="fas fa-sun theme-icon-sun"></i>
+          <i class="fas fa-moon theme-icon-moon"></i>
+        </button>
+
+        <!-- Download CV Action -->
+        <a href="images/jitendra.jpeg" target="_blank" class="btn btn-primary btn-sm btn-download" data-i18n="download_cv">
+          <i class="fas fa-download"></i> Download CV
+        </a>
+
+        <!-- Mobile Hamburger Button -->
+        <button type="button" class="hamburger" id="hamburger" aria-label="Open Mobile Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay">
+    <div class="mobile-nav-links">
+      <a href="#about" class="nav-link" data-i18n="nav_about">About</a>
+      <a href="#projects" class="nav-link" data-i18n="nav_projects">Projects</a>
+      <a href="#experience" class="nav-link" data-i18n="nav_experience">Experience</a>
+      <a href="#skills" class="nav-link" data-i18n="nav_skills">Skills</a>
+      <a href="#certifications" class="nav-link" data-i18n="nav_certifications">Certifications</a>
+      <a href="#blog" class="nav-link" data-i18n="nav_blog">Blog</a>
+      <a href="#learning" class="nav-link" data-i18n="nav_learning">Learning</a>
+      <a href="#contact" class="nav-link" data-i18n="nav_contact">Contact</a>
+    </div>
+    <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border-subtle);">
+      <a href="images/jitendra.jpeg" target="_blank" class="btn btn-primary" style="width:100%;">
+        <i class="fas fa-download"></i> Download CV
+      </a>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       2. Hero Section (Split Layout + Interactive Canvas Visualization)
+       ====================================================================== -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-grid">
+        <!-- Left Hero Content -->
+        <div class="hero-left">
+          <div class="hero-badge-container">
+            <div class="hero-status-pill">
+              <span class="live-indicator"></span>
+              <span data-i18n="status_badge">Available for technical roles & high-impact projects</span>
+            </div>
+          </div>
+
+          <h1 class="hero-name">Jitendra Sharma</h1>
+          
+          <div class="hero-role-title">
+            <span>Software Developer</span>
+            <span style="color:var(--text-muted);">|</span>
+            <span>AI Engineer</span>
+            <span style="color:var(--text-muted);">|</span>
+            <span>Networks, Security & Cloud</span>
+          </div>
+
+          <p class="hero-headline" data-i18n="hero_headline">
+            Building secure, scalable, and intelligent digital solutions.
+          </p>
+
+          <p class="hero-desc" data-i18n="hero_desc">
+            Multidisciplinary technology professional bridging enterprise software development, resilient IT infrastructure, cloud fundamentals, cybersecurity, and AI-enabled operations.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#projects" class="btn btn-primary" data-i18n="view_projects">
+              <i class="fas fa-folder-open"></i> View Projects
             </a>
+            <a href="images/jitendra.jpeg" target="_blank" class="btn btn-secondary" data-i18n="download_cv">
+              <i class="fas fa-file-pdf"></i> Download CV
+            </a>
+            <a href="#contact" class="btn btn-outline" data-i18n="connect_cta">
+              <i class="fas fa-paper-plane"></i> Let's Connect
+            </a>
+          </div>
 
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#skills" class="nav-link">Skills</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#experience" class="nav-link">Experience</a></li>
-                <li><a href="#certifications" class="nav-link">Certificates</a></li>
-                <li><a href="#blog" class="nav-link">Blog</a></li>
-                <li><a href="#learning" class="nav-link">Learning</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-
-            <div class="hamburger" id="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+          <div class="hero-socials">
+            <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="GitHub Profile">
+              <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/jitendra-sharma-25b5ab20a" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="LinkedIn Profile">
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="mailto:jitendra.citizeninfotechnepal@gmail.com" class="social-icon-btn" aria-label="Email Jitendra">
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
         </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <p class="hero-greeting">Hello, I'm</p>
-            <h1 class="hero-name">Jitendra Sharma</h1>
-            <h2 class="hero-title">Electronics & Communication Engineer</h2>
-            <p class="hero-tagline">
-                Passionate about designing innovative electronic systems and embedded solutions.
-                Transforming ideas into reality through cutting-edge technology.
+        <!-- Right Hero Visual: Interactive Technology Canvas with Floating HUD -->
+        <div class="hero-visual-card">
+          <canvas id="heroTechCanvas" class="hero-canvas"></canvas>
+          
+          <div class="floating-hud">
+            <!-- HUD Card 1: Systems -->
+            <div class="hud-pill hud-pill-1">
+              <div class="hud-icon"><i class="fas fa-server"></i></div>
+              <div class="hud-meta">
+                <span class="hud-label">Systems & Ops</span>
+                <span class="hud-val">99.99% Uptime</span>
+              </div>
+            </div>
+
+            <!-- HUD Card 2: Cloud -->
+            <div class="hud-pill hud-pill-2">
+              <div class="hud-icon"><i class="fas fa-cloud"></i></div>
+              <div class="hud-meta">
+                <span class="hud-label">Cloud Infra</span>
+                <span class="hud-val">AWS / Linux</span>
+              </div>
+            </div>
+
+            <!-- HUD Card 3: AI -->
+            <div class="hud-pill hud-pill-3">
+              <div class="hud-icon"><i class="fas fa-brain"></i></div>
+              <div class="hud-meta">
+                <span class="hud-label">AI Engineering</span>
+                <span class="hud-val">ML Pipelines</span>
+              </div>
+            </div>
+
+            <!-- HUD Card 4: Security -->
+            <div class="hud-pill hud-pill-4">
+              <div class="hud-icon"><i class="fas fa-shield-halved"></i></div>
+              <div class="hud-meta">
+                <span class="hud-label">Cyber Defense</span>
+                <span class="hud-val">Hardened Security</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       3. Professional Introduction (About Me — Bento Grid)
+       ====================================================================== -->
+  <section class="section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span data-i18n="about_kicker">Multidisciplinary Professional</span>
+        </div>
+        <h2 class="section-title">
+          Engineering At The Intersection Of <span class="text-gradient">Software & Infrastructure</span>
+        </h2>
+        <p class="section-subtitle">
+          Proven track record in deploying production web platforms, safeguarding financial cooperative databases, and training hundreds of technology professionals.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Main Core Card -->
+        <div class="bento-card about-bento-main">
+          <div class="about-main-header">
+            <span class="badge" style="margin-bottom:12px;">Core Architecture & Operations</span>
+            <h3 class="about-main-title" data-i18n="about_title">
+              Bridging Software, Infrastructure & Artificial Intelligence
+            </h3>
+            <p class="about-main-desc" data-i18n="about_desc1">
+              I specialize in architecting and supporting end-to-end digital ecosystems. From designing customer-facing enterprise CRM platforms to administering high-availability Linux networks, securing critical financial data, and deploying AI-driven pipelines.
             </p>
+            <p class="about-main-desc" data-i18n="about_desc2">
+              With a strong background in Electronics & Communication Engineering paired with 5+ years of practical IT operations, I bring rare cross-functional agility to modern engineering teams.
+            </p>
+          </div>
 
-            <div class="hero-buttons">
-                <a href="#contact" class="btn btn-primary">
-                    <i class="fas fa-envelope"></i> Contact Me
-                </a>
-                <a href="#" class="btn btn-secondary">
-                    <i class="fas fa-download"></i> Download CV
-                </a>
+          <div class="about-pillars-grid">
+            <div class="about-pillar-item">
+              <div class="about-pillar-icon"><i class="fas fa-code"></i></div>
+              <div>
+                <h4 class="about-pillar-title">Full-Stack Development</h4>
+                <p class="about-pillar-desc">Modern React, TypeScript, Node.js, and relational database systems.</p>
+              </div>
             </div>
-
-            <div class="social-links">
-                <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer"
-                    aria-label="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://www.linkedin.com/in/jitendra-sharma-25b5ab20a" target="_blank"
-                    rel="noopener noreferrer" aria-label="LinkedIn">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-                <a href="https://www.facebook.com/s.jitendra83/" target="_blank" rel="noopener noreferrer"
-                    aria-label="Facebook">
-                    <i class="fab fa-facebook"></i>
-                </a>
-                <a href="https://www.instagram.com/s.jitendra83/" target="_blank" rel="noopener noreferrer"
-                    aria-label="Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
-                <a href="https://www.tiktok.com/@soul_mate61" target="_blank" rel="noopener noreferrer"
-                    aria-label="Tiktok">
-                    <i class="fab fa-tiktok"></i>
-                </a>
+            <div class="about-pillar-item">
+              <div class="about-pillar-icon"><i class="fas fa-network-wired"></i></div>
+              <div>
+                <h4 class="about-pillar-title">Networks & Linux</h4>
+                <p class="about-pillar-desc">LAN/WAN routing, VPNs, server provisioning, and backup continuity.</p>
+              </div>
             </div>
-            <div class="scroll-indicator">
-                <div class="scroll-mouse">
-                    <div class="scroll-wheel"></div>
-                </div>
+            <div class="about-pillar-item">
+              <div class="about-pillar-icon"><i class="fas fa-microchip"></i></div>
+              <div>
+                <h4 class="about-pillar-title">AI & IoT Systems</h4>
+                <p class="about-pillar-desc">Data analysis pipelines, embedded C/C++, ESP32 telemetry, and sensor hardware.</p>
+              </div>
             </div>
+            <div class="about-pillar-item">
+              <div class="about-pillar-icon"><i class="fas fa-lock"></i></div>
+              <div>
+                <h4 class="about-pillar-title">Threat Management</h4>
+                <p class="about-pillar-desc">Hardening, RBAC permissions, firewall controls, and data integrity audits.</p>
+              </div>
+            </div>
+          </div>
         </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <div class="section-header">
-                <h2>About <span class="highlight">Me</span></h2>
-                <div class="underline"></div>
+        <!-- Side Bento Cards: Verified CV Stats -->
+        <div class="about-bento-side">
+          <div class="about-stat-row">
+            <div class="bento-card about-stat-card">
+              <div class="about-stat-number" data-i18n="stat_exp">5+ Years</div>
+              <div class="about-stat-label" data-i18n="stat_exp_desc">Enterprise IT, full-stack development, and network infrastructure.</div>
             </div>
-
-            <div class="about-content">
-                <div class="about-text">
-                    <h3>Professional Summary</h3>
-                    <p>
-                        I am a dedicated Electronics & Communication Engineer with a strong foundation in
-                        communication systems, digital electronics, and embedded systems. My passion lies in
-                        developing innovative solutions that bridge the gap between hardware and software.
-                    </p>
-                    <p>
-                        With hands-on experience in various programming languages and industry-standard tools,
-                        I strive to create efficient and scalable electronic systems. I am constantly learning
-                        and adapting to new technologies to stay ahead in this rapidly evolving field.
-                    </p>
-                </div>
-
-                <div class="info-card objective-card">
-                    <div class="card-icon">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
-                    <div class="card-content">
-                        <h4>Career Objective</h4>
-                        <p>
-                            To leverage my technical expertise in electronics and communication engineering
-                            to contribute to innovative projects in a dynamic organization, while
-                            continuously enhancing my skills and knowledge in emerging technologies.
-                        </p>
-                    </div>
-                </div>
-
+            <div class="bento-card about-stat-card">
+              <div class="about-stat-number" data-i18n="stat_trained">400+</div>
+              <div class="about-stat-label" data-i18n="stat_trained_desc">IT professionals, engineers, and students trained in technology.</div>
             </div>
+          </div>
+
+          <div class="bento-card" style="flex-grow:1; display:flex; flex-direction:column; justify-content:center;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+              <div class="about-pillar-icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
+                <i class="fas fa-shield-check"></i>
+              </div>
+              <h4 style="font-family:var(--font-heading); font-size:1.15rem; font-weight:700;">Verified Technical Tenacity</h4>
+            </div>
+            <p style="font-size:0.92rem; color:var(--text-secondary); line-height:1.65;">
+              Whether deploying national healthcare software (e-HMIS) across regional clinics, configuring cooperative banking core IT systems, or developing international student consultation workflows, my solutions are grounded in resilience, security, and measurable business impact.
+            </p>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <!-- Education Section -->
-    <section id="education" class="education">
-        <div class="container">
-            <div class="section-header">
-                <h2>My <span class="highlight">Education</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">A comprehensive overview of my Education</p>
-            </div>
-
-
-            <div class="education-grid">
-                <div class="education-category slc">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-school"></i>
-                        </div>
-                        <h3>Schooling</h3>
-                    </div>
-                    <div class="education-details">
-                        <div class="education-item">
-                            <span class="education-label">Level</span>
-                            <span class="education-value">S.L.C.</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Year</span>
-                            <span class="education-value">2012-2014</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Percentage</span>
-                            <span class="education-value">68%</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Board</span>
-                            <span class="education-value"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="education-category diploma">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h3>Diploma</h3>
-                    </div>
-                    <div class="education-details">
-                        <div class="education-item">
-                            <span class="education-label">Course</span>
-                            <span class="education-value">Diploma in E.C.E.</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Year</span>
-                            <span class="education-value">2014-2017</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Percentage</span>
-                            <span class="education-value">65%</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">University</span>
-                            <span class="education-value">HSBTE</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="education-category btech">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-graduation-cap"></i>
-                        </div>
-                        <h3>B.Tech</h3>
-                    </div>
-                    <div class="education-details">
-                        <div class="education-item">
-                            <span class="education-label">Course</span>
-                            <span class="education-value">Electronics & Communication Engineering</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">Year</span>
-                            <span class="education-value">2017-2021</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">CGPA</span>
-                            <span class="education-value">6.61/10</span>
-                        </div>
-                        <div class="education-item">
-                            <span class="education-label">University</span>
-                            <span class="education-value">Jawarlal Nehru Technological University
-                                Hyderabad(JNTUH)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- ======================================================================
+       4. Featured Projects Section (Bento Grid + Case Study Drawer)
+       ====================================================================== -->
+  <section class="section" id="projects">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span data-i18n="projects_kicker">Featured Work</span>
         </div>
-    </section>
+        <h2 class="section-title" data-i18n="projects_title">
+          Production Systems & Engineering Showcase
+        </h2>
+        <p class="section-subtitle" data-i18n="projects_subtitle">
+          Curated selection of enterprise CRMs, healthcare systems, AI pipelines, and IoT solutions.
+        </p>
+      </div>
 
-    <!-- Skills Section -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <div class="section-header">
-                <h2>My <span class="highlight">Skills</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">A comprehensive overview of my technical expertise and
-                    proficiency levels
-                </p>
-            </div>
+      <!-- Filter Buttons -->
+      <div class="project-filter-bar">
+        <button type="button" class="filter-btn active" data-filter="all" data-i18n="filter_all">All</button>
+        <button type="button" class="filter-btn" data-filter="software" data-i18n="filter_software">Software / CRM</button>
+        <button type="button" class="filter-btn" data-filter="ai" data-i18n="filter_ai">AI & Data</button>
+        <button type="button" class="filter-btn" data-filter="infra" data-i18n="filter_infra">Infrastructure</button>
+        <button type="button" class="filter-btn" data-filter="iot" data-i18n="filter_iot">Electronics / IoT</button>
+      </div>
 
-            <div class="skills-grid">
-                <!-- Electronics Skills -->
-                <div class="skill-category electronics">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-microchip"></i>
-                        </div>
-                        <h3>Electronics</h3>
-                    </div>
-                    <div class="skill-list">
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Communication Systems</span>
-                                <span>85%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Digital Electronics</span>
-                                <span>90%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 90%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Embedded Systems</span>
-                                <span>80%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 80%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Signal Processing</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 75%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Bento Grid Container (Rendered dynamically via script.js) -->
+      <div class="projects-bento-grid" id="projectsGrid"></div>
+    </div>
+  </section>
 
-                <!-- Programming Skills -->
-                <div class="skill-category programming">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <h3>Programming</h3>
-                    </div>
-                    <div class="skill-list">
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>C/C++</span>
-                                <span>85%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Python</span>
-                                <span>80%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 80%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>JavaScript</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>VHDL/Verilog</span>
-                                <span>70%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 70%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tools & Software Skills -->
-                <div class="skill-category tools">
-                    <div class="category-header">
-                        <div class="category-icon">
-                            <i class="fas fa-wrench"></i>
-                        </div>
-                        <h3>Tools & Software</h3>
-                    </div>
-                    <div class="skill-list">
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>MATLAB</span>
-                                <span>85%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Proteus</span>
-                                <span>80%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 80%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Multisim</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 75%"></div>
-                            </div>
-                        </div>
-                        <div class="skill-item">
-                            <div class="skill-info">
-                                <span>Git/GitHub</span>
-                                <span>80%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 80%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <!-- Case Study Slide-over / Modal -->
+  <div class="modal-backdrop" id="caseStudyModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="case-study-dialog">
+      <div class="case-study-header">
+        <div>
+          <span class="project-category-tag" id="modalCategory">Category</span>
+          <h2 class="project-title" id="modalTitle" style="margin-top:6px; margin-bottom:0;">Project Title</h2>
         </div>
-    </section>
+        <button type="button" class="case-study-close-btn" aria-label="Close Case Study">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
 
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <div class="section-header">
-                <h2>My <span class="highlight">Projects</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">A showcase of my academic and personal projects demonstrating my
-                    technical
-                    skills</p>
-            </div>
-
-            <div class="projects-grid">
-                <!-- Project 1 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1558002038-1055907df827?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="Smart Home Automation System">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>Smart Home Automation System</h3>
-                        <p>Developed an IoT-based home automation system using ESP32 and sensors for
-                            controlling lights,
-                            fans, and monitoring temperature. Features mobile app integration for remote
-                            control.</p>
-                        <div class="project-tags">
-                            <span class="tag">ESP32</span>
-                            <span class="tag">Arduino</span>
-                            <span class="tag">IoT</span>
-                            <span class="tag">Mobile App</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 2 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="Digital Signal Processing">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>Digital Signal Processing for Audio</h3>
-                        <p>Implemented various DSP algorithms for audio signal processing including noise
-                            reduction,
-                            equalization, and compression using MATLAB and Python.</p>
-                        <div class="project-tags">
-                            <span class="tag">MATLAB</span>
-                            <span class="tag">Python</span>
-                            <span class="tag">DSP</span>
-                            <span class="tag">Audio</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 3 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="RFID Attendance System">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>RFID-Based Attendance System</h3>
-                        <p>Created an automated attendance system using RFID technology and Arduino.
-                            Integrated with a
-                            database for real-time tracking and generating attendance reports.</p>
-                        <div class="project-tags">
-                            <span class="tag">RFID</span>
-                            <span class="tag">Arduino</span>
-                            <span class="tag">MySQL</span>
-                            <span class="tag">C++</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 4 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="Wireless Power Transfer">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>Wireless Power Transfer System</h3>
-                        <p>Designed and implemented a wireless power transfer system based on
-                            electromagnetic induction
-                            principles for charging small electronic devices.</p>
-                        <div class="project-tags">
-                            <span class="tag">Circuit Design</span>
-                            <span class="tag">Power Electronics</span>
-                            <span class="tag">Proteus</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 5 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="Voice Controlled Robot">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>Voice-Controlled Robot</h3>
-                        <p>Built a voice-controlled mobile robot using speech recognition modules and motor
-                            drivers.
-                            Programmed with Arduino for real-time command processing.</p>
-                        <div class="project-tags">
-                            <span class="tag">Arduino</span>
-                            <span class="tag">Speech Recognition</span>
-                            <span class="tag">Robotics</span>
-                            <span class="tag">C</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 6 -->
-                <div class="project-card">
-                    <div class="project-image">
-                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop" loading="lazy" width="600" height="400"
-                            alt="Heart Rate Monitor">
-                        <div class="project-overlay"></div>
-                    </div>
-                    <div class="project-content">
-                        <h3>Heart Rate Monitoring System</h3>
-                        <p>Developed a portable heart rate monitoring device using pulse sensor and Arduino.
-                            Displays
-                            real-time data on LCD and sends alerts for abnormal readings.</p>
-                        <div class="project-tags">
-                            <span class="tag">Arduino</span>
-                            <span class="tag">Sensors</span>
-                            <span class="tag">Healthcare</span>
-                            <span class="tag">Embedded C</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="https://github.com" target="_blank" class="btn-link">
-                                <i class="fab fa-github"></i> Code
-                            </a>
-                            <a href="#" target="_blank" class="btn-link primary">
-                                <i class="fas fa-external-link-alt"></i> Demo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="case-study-body">
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-info-circle"></i> Project Overview</h4>
+          <p class="case-study-text" id="modalOverview"></p>
         </div>
-    </section>
 
-    <!-- Experience Section -->
-    <section id="experience" class="experience">
-        <div class="container">
-            <div class="section-header">
-                <h2>Experience & <span class="highlight">Training</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">Professional experiences, industrial training, and workshops</p>
-            </div>
-
-            <div class="experience-content">
-                <div class="timeline">
-                    <!-- Experience 1 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Internship</span>
-                                <span class="duration">June 2015 - August 2015</span>
-                            </div>
-                            <h3>Electronics Design Intern</h3>
-                            <p class="company">Tech Solutions Pvt. Ltd. </p>
-                            <p class="description">
-                                Worked on PCB design and testing for IoT devices. Collaborated with senior
-                                engineers on
-                                embedded systems development and gained hands-on experience with
-                                industry-standard
-                                tools.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">PCB Design</span>
-                                <span class="skill-tag">Embedded Systems</span>
-                                <span class="skill-tag">Testing</span>
-                                <span class="skill-tag">IoT</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Experience 2 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-calendar"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Training</span>
-                                <span class="duration">1 June 2016 - 15 July 2016</span>
-                            </div>
-                            <h3>Embedded Systems Design & Programming</h3>
-                            <p class="company">NetMax Technology Pvt.Ltd. </p>
-                            <p class="description">
-                                Completed comprehensive training in VLSI design covering RTL design,
-                                synthesis, and
-                                verification. Worked on mini-projects using Verilog and FPGA implementation.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">VLSI</span>
-                                <span class="skill-tag">Verilog</span>
-                                <span class="skill-tag">FPGA</span>
-                                <span class="skill-tag">RTL Design</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Experience 3 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Internship</span>
-                                <span class="duration">June 2019 - July 2019</span>
-                            </div>
-                            <h3>IMU Section, IT, Transmission & Mobile Project</h3>
-                            <p class="company">Nepal Telecom </p>
-                            <p class="description">
-                                Certified in IMU Section, IT, Transmission & Mobile Project.
-                                Completed comprehensive training in VLSI design covering RTL design,
-                                synthesis, and
-                                verification. Worked on mini-projects using Verilog and FPGA implementation.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">Arduino</span>
-                                <span class="skill-tag">ARM</span>
-                                <span class="skill-tag">Sensors</span>
-                                <span class="skill-tag">Microcontrollers</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Experience 4 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Workshop</span>
-                                <span class="duration">January 2020</span>
-                            </div>
-                            <h3>ROBOTC Compitition</h3>
-                            <p class="company">JNTUH</p>
-                            <p class="description">
-                                Participated in a hands-on workshop focusing on Arduino and ARM
-                                microcontroller
-                                programming, sensor interfacing, and real-time embedded applications.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">Arduino</span>
-                                <span class="skill-tag">ARM</span>
-                                <span class="skill-tag">Sensors</span>
-                                <span class="skill-tag">Microcontrollers</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Experience 5 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Full Time Job</span>
-                                <span class="duration">November 2021 - July 2023</span>
-                            </div>
-                            <h3>IT Officer</h3>
-                            <p class="company">Hamro Madhyaworti Saving & Credit Co-operative Society Ltd.</p>
-                            <p class="description">
-                                Full-time IT Officer responsible for managing IT infrastructure, cooperative
-                                software
-                                systems, data security, technical support, backups, networking, and digitization
-                                of
-                                operations to ensure reliable and secure daily services.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">IT infrastructure</span>
-                                <span class="skill-tag">Cybersecurity</span>
-                                <span class="skill-tag">Sensors</span>
-                                <span class="skill-tag">Microcontrollers</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Experience 6 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Full Time Job</span>
-                                <span class="duration">October 2021 to Present</span>
-                            </div>
-                            <h3>Technical Support</h3>
-                            <p class="company">Highway Techno Institute Pvt. Ltd.</p>
-                            <p class="description">
-                                Full-time Technical Support Officer responsible for system setup,
-                                troubleshooting, lab
-                                management, user support, networking, and technical assistance for training
-                                programs.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">Operating Systems</span>
-                                <span class="skill-tag">Cybersecurity</span>
-                                <span class="skill-tag">Testing</span>
-                                <span class="skill-tag">IT inventory</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Experience 7 -->
-                    <div class="timeline-item">
-                        <div class="timeline-dot">
-                            <i class="fas fa-calendar"></i>
-                        </div>
-                        <div class="timeline-card">
-                            <div class="card-header">
-                                <span class="badge">Full Time Job</span>
-                                <span class="duration">January 2023 - Till Date</span>
-                            </div>
-                            <h3>Trainer & IT Support Engineer</h3>
-                            <p class="company">Citizen Infotech Pvt. Ltd.</p>
-                            <p class="description">
-                                Full-time Software Trainer responsible for delivering hands-on IT and software
-                                training,
-                                curriculum development, student mentoring, project guidance, and skill
-                                evaluation.
-                            </p>
-                            <div class="skills-tags">
-                                <span class="skill-tag">eHMIS</span>
-                                <span class="skill-tag">EHR</span>
-                                <span class="skill-tag">IDMS</span>
-                                <span class="skill-tag">MCH</span>
-                                <span class="skill-tag">IDSP</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Certifications -->
-                <div class="certifications" id="certifications">
-                    <div class="cert-header">
-                        <div class="cert-icon">
-                            <i class="fas fa-award"></i>
-                        </div>
-                        <h3>Certifications</h3>
-                    </div>
-                    <div class="cert-list">
-                        <div class="cert-item">
-                            <h4>Embedded Systems Certification</h4>
-                            <p>Coursera</p>
-                            <span class="cert-year">2023</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>Python for Data Science</h4>
-                            <p>edX</p>
-                            <span class="cert-year">2023</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>Digital Signal Processing</h4>
-                            <p>NPTEL</p>
-                            <span class="cert-year">2022</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>PCB Design Fundamentals</h4>
-                            <p>Udemy</p>
-                            <span class="cert-year">2022</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>Robotics Trainning</h4>
-                            <p>JNTUH</p>
-                            <span class="cert-year">2020</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>Embedded Systems Design & Programming</h4>
-                            <p>NetMax Technology</p>
-                            <span class="cert-year">2017</span>
-                        </div>
-                        <div class="cert-item">
-                            <h4>Certified in IMU Section, IT, Transmission & Mobile Project</h4>
-                            <p>Nepal Telecom</p>
-                            <span class="cert-year">2020</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="case-study-highlight-box">
+          <div style="font-weight:700; margin-bottom:4px; color:var(--text-primary);">Challenge & Problem Statement:</div>
+          <div id="modalProblem" style="color:var(--text-secondary); font-size:0.92rem;"></div>
         </div>
-    </section>
 
-    <!-- Blog Section -->
-    <section id="blog" class="blog page-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="page-kicker">blog@jitendra:~$ tail -f posts.log<span class="cursor">_</span></span>
-                <h2>Latest <span class="highlight">Blog</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">Articles, tutorials and notes on embedded systems & engineering</p>
-            </div>
-            <div class="blog-grid">
-                <!-- Blog posts loaded dynamically from admin panel -->
-                <p class="blog-empty">No blog posts yet. Check back soon!</p>
-            </div>
-            <div class="blog-single-post" style="display:none; max-width:800px; margin:40px auto 0;"></div>
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-user-check"></i> My Role & Contributions</h4>
+          <p class="case-study-text" id="modalRole"></p>
         </div>
-    </section>
 
-    <!-- Learning Section -->
-    <section id="learning" class="learning page-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="page-kicker">learning@jitendra:~$ ./run_quiz.sh<span class="cursor">_</span></span>
-                <h2>My <span class="highlight">Learning</span> Hub</h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">Courses, notes and practice questions</p>
-            </div>
-            <div class="learning-courses">
-                <!-- Courses loaded dynamically from admin panel -->
-                <p class="blog-empty">No courses added yet. Check back soon!</p>
-            </div>
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-layer-group"></i> Technologies & Frameworks</h4>
+          <div class="project-tech-tags" id="modalTechTags"></div>
         </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <div class="section-header">
-                <h2>Get In <span class="highlight">Touch</span></h2>
-                <div class="underline"></div>
-                <p class="section-subtitle">Have a question or want to work together? Feel free to reach
-                    out!</p>
-            </div>
-
-            <div class="contact-content">
-                <div class="contact-info">
-                    <h3>Contact Information</h3>
-                    <p class="info-text">
-                        I'm always open to discussing new projects, creative ideas, or opportunities to be
-                        part of your visions.
-                    </p>
-
-                    <div class="info-items">
-                        <a href="mailto:jitendra.citizeninfotechnepal@gmail.com" class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div>
-                                <p class="info-label">Email</p>
-                                <p class="info-value">jitendra.citizeninfotechnepal@gmail.com</p>
-                            </div>
-                        </a>
-
-                        <a href="tel:+9779868909630" class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div>
-                                <p class="info-label">Phone</p>
-                                <p class="info-value">+9779868909630</p>
-                            </div>
-                        </a>
-
-                        <div class="info-item">
-                            <div class="info-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div>
-                                <p class="info-label">Location</p>
-                                <p class="info-value">28 Bagbazar,Kathmandu, Nepal</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Map -->
-                    <div class="map-container">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.1234!2d85.3189786!3d27.7050092!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19075849239d:0x4ddaddd1271c3890!2sBagbazar,%20Kathmandu!5e0!3m2!1sen!2snp!4v1234567890"
-                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
-                            title="Location Map">
-                        </iframe>
-                    </div>
-                </div>
-
-                <!-- Contact Form -->
-                <div class="contact-form-wrapper">
-                    <h3>Send a Message</h3>
-                    <form id="contactForm" class="contact-form">
-                        <div class="form-group">
-                            <label for="name">Your Name</label>
-                            <input type="text" id="name" name="name" placeholder="Enter your name" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="email">Your Email</label>
-                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="message">Your Message</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Enter your message"
-                                required></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <i class="fas fa-paper-plane"></i> Send Message
-                        </button>
-                    </form>
-
-                    <!-- Success Message -->
-                    <div id="formMessage" class="form-message"></div>
-                </div>
-            </div>
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-list-check"></i> Architectural Features</h4>
+          <ul id="modalFeaturesList" style="list-style:none; padding:0;"></ul>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Jitendra Sharma</h3>
-                    <p>Electronics & Communication Engineer passionate about creating innovative solutions
-                        through
-                        technology.</p>
-                    <div class="footer-social">
-                        <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer"
-                            aria-label="GitHub">
-                            <i class="fab fa-github"></i>
-                        </a>
-                        <a href="https://www.linkedin.com/in/jitendra-sharma-25b5ab20a" target="_blank"
-                            rel="noopener noreferrer" aria-label="LinkedIn">
-                            <i class="fab fa-linkedin"></i>
-                        </a>
-                        <a href="https://www.facebook.com/s.jitendra83/" target="_blank" rel="noopener noreferrer"
-                            aria-label="Facebook">
-                            <i class="fab fa-facebook"></i>
-                        </a>
-                        <a href="https://www.instagram.com/s.jitendra83/" target="_blank" rel="noopener noreferrer"
-                            aria-label="Instagram">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="https://www.tiktok.com/@soul_mate61" target="_blank" rel="noopener noreferrer"
-                            aria-label="Tiktok">
-                            <i class="fab fa-tiktok"></i>
-                        </a>
-                        <a href="mailto:jitendra.citizeninfotechnepal@gmail.com" aria-label="Email">
-                            <i class="fas fa-envelope"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#skills">Skills</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                        <li><a href="#experience">Experience</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h4>Contact Info</h4>
-                    <ul class="footer-contact">
-                        <li><strong>Email:</strong> jitendra.citizeninfotechnepal@gmail.com</li>
-                        <li><strong>Phone:</strong> +977 9868909630</li>
-                        <li><strong>Location:</strong> 28 Bagbazar,Kathmandu, Nepal</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <p>© <span id="currentYear"></span> Jitendra Sharma <i class="fas fa-heart"></i> All rights
-                    reserved.
-                </p>
-                <button id="scrollTop" class="scroll-top" aria-label="Scroll to top">
-                    <i class="fas fa-arrow-up"></i>
-                </button>
-            </div>
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-code-merge"></i> Development Process & Architecture</h4>
+          <p class="case-study-text" id="modalProcess"></p>
         </div>
-    </footer>
 
-    <!-- Custom JavaScript -->
-    <!-- Firebase (cloud sync so Blog/Learning data shows on all devices/browsers) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCeQMG9EKm7JhhXGcf9iVQazXKgEKKUN1M",
-            authDomain: "jitendra-sharma-portfoli-945d6.firebaseapp.com",
-            projectId: "jitendra-sharma-portfoli-945d6",
-            storageBucket: "jitendra-sharma-portfoli-945d6.firebasestorage.app",
-            messagingSenderId: "856409412134",
-            appId: "1:856409412134:web:63904ec719db1fb18f8ce7"
-        };
-        firebase.initializeApp(firebaseConfig);
-        window.db = firebase.firestore();
-    </script>
-    <script src="script.js"></script>
+        <div class="case-study-highlight-box" style="border-left-color:#10b981;">
+          <div style="font-weight:700; margin-bottom:4px; color:var(--text-primary);">Measurable Impact & Results:</div>
+          <div id="modalResults" style="color:var(--text-secondary); font-size:0.92rem;"></div>
+        </div>
+
+        <div>
+          <h4 class="case-study-section-title"><i class="fas fa-triangle-exclamation"></i> Engineering Challenges & Solutions</h4>
+          <p class="case-study-text" id="modalChallenges"></p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:16px; margin-top:10px; padding-top:20px; border-top:1px solid var(--border-subtle);">
+          <a href="#" id="modalGithubLink" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+            <i class="fab fa-github"></i> View Repository
+          </a>
+          <a href="#" id="modalDemoLink" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+            <i class="fas fa-external-link-alt"></i> Live Demo / Reference
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       5. Experience Timeline Section (Verified Strictly Against CV)
+       ====================================================================== -->
+  <section class="section" id="experience">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span data-i18n="exp_kicker">Career Trajectory</span>
+        </div>
+        <h2 class="section-title" data-i18n="exp_title">Professional Experience</h2>
+        <p class="section-subtitle" data-i18n="exp_subtitle">
+          Verified chronological history from enterprise IT management to software engineering.
+        </p>
+      </div>
+
+      <div class="timeline-container">
+        <!-- Experience 1: Route2Uni -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">Information Technology Officer</h3>
+              <span class="timeline-date-badge">April 2026 – Present</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-building"></i> Route2Uni International Group
+            </div>
+            <p class="timeline-desc">
+              Directing internal IT infrastructure, education consultancy CRM administration, database integrity, and student application portal workflows. Managing secure communications, digital systems maintenance, and staff technical support.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">IT Operations</span>
+              <span class="tech-tag">CRM Management</span>
+              <span class="tech-tag">Network Administration</span>
+              <span class="tech-tag">Database Security</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience 2: Citizen Infotech - Front-End Developer -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">Front-End Developer</h3>
+              <span class="timeline-date-badge">July 2025 – April 2026</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-building"></i> Citizen Infotech Pvt. Ltd.
+            </div>
+            <p class="timeline-desc">
+              Engineered responsive, accessible front-end interfaces for enterprise software and client platforms. Implemented UI components in modern JavaScript/React, connected RESTful API services, and optimized cross-browser performance.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">JavaScript (ES6+)</span>
+              <span class="tech-tag">REST APIs</span>
+              <span class="tech-tag">HTML5 / CSS3</span>
+              <span class="tech-tag">Responsive Design</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience 3: Citizen Infotech - IT Support Specialist -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">IT Support Specialist</h3>
+              <span class="timeline-date-badge">February 2025 – July 2025</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-building"></i> Citizen Infotech Pvt. Ltd.
+            </div>
+            <p class="timeline-desc">
+              Provided technical systems administration, troubleshooting, hardware provisioning, network maintenance, and user support across company operations and healthcare technology deployments.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">Systems Administration</span>
+              <span class="tech-tag">LAN / WAN</span>
+              <span class="tech-tag">Technical Troubleshooting</span>
+              <span class="tech-tag">User Access</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience 4: Citizen Infotech - Technical Trainer -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">Technical Trainer</h3>
+              <span class="timeline-date-badge">August 2024 – February 2025</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-chalkboard-teacher"></i> Citizen Infotech Pvt. Ltd.
+            </div>
+            <p class="timeline-desc">
+              Trained over 400+ professionals, healthcare operators, and students on software systems (including e-HMIS, EHR, IDMS), database concepts, and IT operations through hands-on workshops and curriculum delivery.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">Technical Training</span>
+              <span class="tech-tag">e-HMIS / EHR</span>
+              <span class="tech-tag">Curriculum Design</span>
+              <span class="tech-tag">Workshops</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience 5: Hamro Madhyawarti Co-operative -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">Information Technology Engineer</h3>
+              <span class="timeline-date-badge">November 2021 – July 2023</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-building-columns"></i> Hamro Madhyawarti Saving & Credit Co-operative Ltd.
+            </div>
+            <p class="timeline-desc">
+              Managed the cooperative's entire IT infrastructure, core banking software systems, financial data security, automated daily backups, network uptime, and institutional digitization.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">Banking Software</span>
+              <span class="tech-tag">Financial Data Security</span>
+              <span class="tech-tag">Backup Recovery</span>
+              <span class="tech-tag">Network Architecture</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Experience 6: Nepal Telecom -->
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">Electronic Engineer Intern</h3>
+              <span class="timeline-date-badge">April 2019 – June 2019</span>
+            </div>
+            <div class="timeline-company">
+              <i class="fas fa-tower-broadcast"></i> Nepal Telecom
+            </div>
+            <p class="timeline-desc">
+              Hands-on engineering training in the IMU Section, Transmission, Mobile Project, and IT infrastructure. Analyzed telecommunication routing, transmission equipment, and signal integrity.
+            </p>
+            <div class="project-tech-tags" style="margin-bottom:0;">
+              <span class="tech-tag">Telecommunications</span>
+              <span class="tech-tag">Transmission Systems</span>
+              <span class="tech-tag">Mobile Networks</span>
+              <span class="tech-tag">RF & Fiber</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       6. Interactive Skills Section (Modern Technology Ecosystem)
+       ====================================================================== -->
+  <section class="section" id="skills">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span data-i18n="skills_kicker">Technical Ecosystem</span>
+        </div>
+        <h2 class="section-title" data-i18n="skills_title">Capabilities & Tooling</h2>
+        <p class="section-subtitle" data-i18n="skills_subtitle">
+          An interactive overview of core competencies across modern technology domains.
+        </p>
+      </div>
+
+      <div class="skills-pillars-container">
+        <!-- Pillar 1: Software Development -->
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="fas fa-code"></i></div>
+            <h3 class="skill-pillar-name">Software Development</h3>
+          </div>
+          <div class="skills-cards-subgrid">
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-html5 tech-eco-icon"></i>
+                <span class="tech-eco-name">HTML5 & CSS3</span>
+              </div>
+              <p class="tech-eco-desc">Semantic, accessible layout systems with responsive CSS custom properties.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-js tech-eco-icon"></i>
+                <span class="tech-eco-name">JavaScript (ES6+)</span>
+              </div>
+              <p class="tech-eco-desc">Modern asynchronous JS, DOM manipulation, state patterns, and API integration.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-code tech-eco-icon"></i>
+                <span class="tech-eco-name">TypeScript</span>
+              </div>
+              <p class="tech-eco-desc">Strict type safety, interfaces, generics, and scalable codebases.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-react tech-eco-icon"></i>
+                <span class="tech-eco-name">React</span>
+              </div>
+              <p class="tech-eco-desc">Component-driven architectures, hooks, context state, and performance tuning.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-network-wired tech-eco-icon"></i>
+                <span class="tech-eco-name">RESTful API Integration</span>
+              </div>
+              <p class="tech-eco-desc">Secure JSON endpoints, HTTP lifecycle, token authentication, and data binding.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-database tech-eco-icon"></i>
+                <span class="tech-eco-name">Database Management</span>
+              </div>
+              <p class="tech-eco-desc">Relational modeling in PostgreSQL, MySQL, normalization, and query tuning.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 2: Infrastructure & Cloud -->
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="fas fa-cloud"></i></div>
+            <h3 class="skill-pillar-name">Infrastructure & Cloud</h3>
+          </div>
+          <div class="skills-cards-subgrid">
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-linux tech-eco-icon"></i>
+                <span class="tech-eco-name">Linux Administration</span>
+              </div>
+              <p class="tech-eco-desc">Debian/Ubuntu server configuration, CLI scripting, SSH, and daemon management.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-aws tech-eco-icon"></i>
+                <span class="tech-eco-name">AWS Fundamentals</span>
+              </div>
+              <p class="tech-eco-desc">EC2 instances, S3 storage buckets, IAM permissions, and cloud networking basics.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-server tech-eco-icon"></i>
+                <span class="tech-eco-name">Server Management</span>
+              </div>
+              <p class="tech-eco-desc">Web server administration (Nginx/Apache), monitoring, and resource scaling.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-sitemap tech-eco-icon"></i>
+                <span class="tech-eco-name">LAN / WAN Networking</span>
+              </div>
+              <p class="tech-eco-desc">Subnetting, VLAN configuration, router and switch topologies, and VPN tunnels.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-floppy-disk tech-eco-icon"></i>
+                <span class="tech-eco-name">Backup & Disaster Recovery</span>
+              </div>
+              <p class="tech-eco-desc">Scheduled snapshots, offsite storage replication, and continuity testing.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 3: Security -->
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="fas fa-shield-halved"></i></div>
+            <h3 class="skill-pillar-name">Security & Threat Management</h3>
+          </div>
+          <div class="skills-cards-subgrid">
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-shield-virus tech-eco-icon"></i>
+                <span class="tech-eco-name">Cyber Threat Management</span>
+              </div>
+              <p class="tech-eco-desc">Vulnerability assessment, intrusion prevention protocols, and threat containment.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-user-lock tech-eco-icon"></i>
+                <span class="tech-eco-name">Data Security & Compliance</span>
+              </div>
+              <p class="tech-eco-desc">At-rest and in-transit encryption, role-based controls, and auditable trails.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-ethernet tech-eco-icon"></i>
+                <span class="tech-eco-name">Network Security</span>
+              </div>
+              <p class="tech-eco-desc">Firewall rule definitions, traffic filtering, port isolation, and secure routing.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 4: AI & Data -->
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="fas fa-brain"></i></div>
+            <h3 class="skill-pillar-name">AI & Data Engineering</h3>
+          </div>
+          <div class="skills-cards-subgrid">
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-microchip-ai tech-eco-icon"></i>
+                <span class="tech-eco-name">AI Engineering</span>
+              </div>
+              <p class="tech-eco-desc">Automated workflows, AI model integration, prompt architectures, and pipelines.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fab fa-python tech-eco-icon"></i>
+                <span class="tech-eco-name">Python for Data Science</span>
+              </div>
+              <p class="tech-eco-desc">NumPy, Pandas, Scikit-learn, statistical data transformations, and scripting.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-chart-line tech-eco-icon"></i>
+                <span class="tech-eco-name">Data Analysis & Insights</span>
+              </div>
+              <p class="tech-eco-desc">Exploratory analytics, trend identification, and KPI dashboard reporting.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-diagram-project tech-eco-icon"></i>
+                <span class="tech-eco-name">Database Design & Tuning</span>
+              </div>
+              <p class="tech-eco-desc">Schema normalization, indexing strategy, constraint modeling, and optimization.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 5: Electronics & IoT -->
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="fas fa-microchip"></i></div>
+            <h3 class="skill-pillar-name">Electronics & IoT</h3>
+          </div>
+          <div class="skills-cards-subgrid">
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-microchip tech-eco-icon"></i>
+                <span class="tech-eco-name">Embedded Systems</span>
+              </div>
+              <p class="tech-eco-desc">ESP32, Arduino microcontrollers, firmware in Embedded C/C++, and hardware timers.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-wifi tech-eco-icon"></i>
+                <span class="tech-eco-name">IoT & Wireless Protocols</span>
+              </div>
+              <p class="tech-eco-desc">MQTT, RFID (RC522), I2C, SPI, UART, and telemetry sensor networks.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-wave-square tech-eco-icon"></i>
+                <span class="tech-eco-name">Communication Systems & DSP</span>
+              </div>
+              <p class="tech-eco-desc">Digital signal filtering, Fourier analysis, frequency modulation, and transmission.</p>
+            </div>
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="fas fa-bolt tech-eco-icon"></i>
+                <span class="tech-eco-name">Circuit Design & Simulation</span>
+              </div>
+              <p class="tech-eco-desc">Schematic modeling, Proteus, Multisim, and MATLAB simulation benchmarks.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       7. GitHub Activity Section
+       ====================================================================== -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span>Open Source</span>
+        </div>
+        <h2 class="section-title">GitHub Activity & Repositories</h2>
+        <p class="section-subtitle">
+          Continuous commitment to hands-on engineering, open-source repositories, and code craftsmanship.
+        </p>
+      </div>
+
+      <div class="github-overview-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div class="social-icon-btn" style="width:52px; height:52px; font-size:1.6rem; background:rgba(var(--accent-primary-rgb),0.12); color:var(--accent-primary);">
+              <i class="fab fa-github"></i>
+            </div>
+            <div>
+              <h3 style="font-family:var(--font-heading); font-size:1.35rem; color:var(--text-primary);">@Jitendra83-coder</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted);">Engineering repositories and public code artifacts</p>
+            </div>
+          </div>
+          <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+            <i class="fab fa-github"></i> Visit Profile
+          </a>
+        </div>
+
+        <div class="github-metrics-row">
+          <div class="github-metric-box">
+            <div class="github-metric-num" id="githubTotalRepos">12+</div>
+            <div class="github-metric-label">Public Repositories</div>
+          </div>
+          <div class="github-metric-box">
+            <div class="github-metric-num" id="githubTotalStars">5+</div>
+            <div class="github-metric-label">Stars Received</div>
+          </div>
+          <div class="github-metric-box">
+            <div class="github-metric-num">5+</div>
+            <div class="github-metric-label">Primary Languages</div>
+          </div>
+          <div class="github-metric-box">
+            <div class="github-metric-num">100%</div>
+            <div class="github-metric-label">Verified Code</div>
+          </div>
+        </div>
+
+        <div style="margin-top:32px;">
+          <h4 style="font-family:var(--font-heading); font-size:1.05rem; margin-bottom:16px; color:var(--text-primary);">
+            Featured Public Repositories
+          </h4>
+          <div class="skills-cards-subgrid" id="githubFeaturedRepos"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       8. Certifications & Education Sections
+       ====================================================================== -->
+  <section class="section" id="certifications">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span>Credentials</span>
+        </div>
+        <h2 class="section-title">Certifications & Accreditations</h2>
+        <p class="section-subtitle">
+          Formally verified technical credentials grounding expertise in cybersecurity, AI, data analytics, and hardware.
+        </p>
+      </div>
+
+      <div class="certs-grid">
+        <!-- Cert 1 -->
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">Security</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">Verified</span>
+            </div>
+            <h3 class="cert-title">Cyber Threat Management</h3>
+            <p class="cert-issuer">Cisco Networking Academy / Professional Credentials</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">Active</span>
+          </div>
+        </div>
+
+        <!-- Cert 2 -->
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">Artificial Intelligence</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">Verified</span>
+            </div>
+            <h3 class="cert-title">AI Engineer for Data Scientists Associate</h3>
+            <p class="cert-issuer">Professional Accreditation</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">Active</span>
+          </div>
+        </div>
+
+        <!-- Cert 3 -->
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">Analytics</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">Verified</span>
+            </div>
+            <h3 class="cert-title">Data Analyst Associate</h3>
+            <p class="cert-issuer">Data Science & Analytical Workflows</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">Active</span>
+          </div>
+        </div>
+
+        <!-- Cert 4 -->
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">Hardware</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">Verified</span>
+            </div>
+            <h3 class="cert-title">Computer Hardware Basics</h3>
+            <p class="cert-issuer">Systems Architecture & Provisioning</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">Active</span>
+          </div>
+        </div>
+
+        <!-- Cert 5 -->
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">Database</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">Verified</span>
+            </div>
+            <h3 class="cert-title">Database Designer</h3>
+            <p class="cert-issuer">Relational Systems & Schema Architecture</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Education Subsection -->
+      <div style="margin-top:70px;">
+        <div class="section-header" style="margin-bottom:40px;">
+          <div class="section-kicker">
+            <span class="pulse-dot"></span>
+            <span>Academic Background</span>
+          </div>
+          <h3 class="section-title" style="font-size:2rem;">Formal Education</h3>
+        </div>
+
+        <div class="bento-grid">
+          <!-- B.Tech Card -->
+          <div class="bento-card" style="grid-column:span 6;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <div class="about-pillar-icon" style="background:rgba(var(--accent-primary-rgb),0.15); color:var(--accent-primary);">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <div>
+                <span class="badge">Bachelor of Technology</span>
+                <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); margin-left:8px;">2017 – 2022</span>
+              </div>
+            </div>
+            <h4 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:8px; color:var(--text-primary);">
+              Electronics & Communication Engineering
+            </h4>
+            <p style="font-size:0.95rem; color:var(--accent-primary); font-weight:600; margin-bottom:12px;">
+              Guru Nanak Institutions Of Technical Campus (JNTUH)
+            </p>
+            <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">
+              Rigorous curriculum spanning digital signal processing, embedded systems, microprocessors, communication networks, VLSI, and computer architecture.
+            </p>
+          </div>
+
+          <!-- Diploma Card -->
+          <div class="bento-card" style="grid-column:span 6;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <div class="about-pillar-icon" style="background:rgba(99,102,241,0.15); color:var(--accent-secondary);">
+                <i class="fas fa-certificate"></i>
+              </div>
+              <div>
+                <span class="badge">Diploma in Engineering</span>
+                <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); margin-left:8px;">2014 – 2017</span>
+              </div>
+            </div>
+            <h4 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:8px; color:var(--text-primary);">
+              Diploma in Electronics and Communication Engineering
+            </h4>
+            <p style="font-size:0.95rem; color:var(--accent-secondary); font-weight:600; margin-bottom:12px;">
+              SRM College of Technical Education (HSBTE)
+            </p>
+            <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">
+              Foundational laboratory and theoretical training in circuit design, analogue electronics, digital logic gates, microcontrollers, and communication systems.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       9. Blog & Technical Articles Section
+       ====================================================================== -->
+  <section class="section" id="blog">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span>Technical Journal</span>
+        </div>
+        <h2 class="section-title">Articles, Architecture & Insights</h2>
+        <p class="section-subtitle">
+          Technical deep-dives on software engineering, cloud infrastructure, network security, and AI operations.
+        </p>
+      </div>
+
+      <div class="blog-grid" id="blogPostsGrid">
+        <!-- Professional Empty State (Syncs dynamically with Firebase Firestore) -->
+        <div class="blog-empty-state">
+          <i class="fas fa-feather-pointed blog-empty-icon"></i>
+          <h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:8px; color:var(--text-primary);">
+            Articles in Preparation
+          </h3>
+          <p style="font-size:0.92rem; color:var(--text-secondary); max-width:480px; margin:0 auto 16px auto;">
+            New technical writeups on enterprise CRM design, e-HMIS healthcare implementation, and Linux infrastructure are being published shortly.
+          </p>
+          <a href="admin/" class="btn btn-secondary btn-sm">
+            <i class="fas fa-pen-to-square"></i> Manage in Admin Panel
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       10. Learning Hub Section
+       ====================================================================== -->
+  <section class="section" id="learning">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span>Continuous Growth</span>
+        </div>
+        <h2 class="section-title">Personal Knowledge Base</h2>
+        <p class="section-subtitle">
+          Curated notes, active labs, course completions, and technical research topics.
+        </p>
+      </div>
+
+      <div class="skills-cards-subgrid" id="learningCoursesList">
+        <div class="tech-ecosystem-card">
+          <div class="tech-eco-head">
+            <i class="fas fa-brain tech-eco-icon"></i>
+            <span class="tech-eco-name">Modern LLM & Agentic AI Architecture</span>
+          </div>
+          <p class="tech-eco-desc">Exploring autonomous AI agent orchestration, vector embeddings, and API tooling.</p>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+            <span class="badge" style="font-size:0.75rem;">AI Engineering</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Active Study</span>
+          </div>
+        </div>
+
+        <div class="tech-ecosystem-card">
+          <div class="tech-eco-head">
+            <i class="fas fa-cloud-arrow-up tech-eco-icon"></i>
+            <span class="tech-eco-name">Cloud Native Solutions Architecture</span>
+          </div>
+          <p class="tech-eco-desc">Containerization with Docker, Kubernetes cluster basics, and cloud infrastructure.</p>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+            <span class="badge" style="font-size:0.75rem;">Cloud Infra</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);">In Progress</span>
+          </div>
+        </div>
+
+        <div class="tech-ecosystem-card">
+          <div class="tech-eco-head">
+            <i class="fas fa-shield-virus tech-eco-icon"></i>
+            <span class="tech-eco-name">Enterprise Threat Modeling & Zero-Trust</span>
+          </div>
+          <p class="tech-eco-desc">Defense-in-depth methodologies, credential management, and infrastructure audits.</p>
+          <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+            <span class="badge" style="font-size:0.75rem;">Cybersecurity</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Completed</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       11. Contact / Hire Section
+       ====================================================================== -->
+  <section class="section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-kicker">
+          <span class="pulse-dot"></span>
+          <span data-i18n="contact_kicker">Get In Touch</span>
+        </div>
+        <h2 class="section-title" data-i18n="contact_title">Let's Build Something Meaningful</h2>
+        <p class="section-subtitle" data-i18n="contact_subtitle">
+          Open to software development opportunities, IT infrastructure roles, cloud/networking projects, and technical consulting.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Direct Contact Details -->
+        <div class="contact-info-column">
+          <a href="mailto:jitendra.citizeninfotechnepal@gmail.com" class="contact-item-link">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <div class="contact-label">Direct Email</div>
+              <div class="contact-val">jitendra.citizeninfotechnepal@gmail.com</div>
+            </div>
+          </a>
+
+          <a href="tel:+9779868909630" class="contact-item-link">
+            <div class="contact-icon"><i class="fas fa-phone"></i></div>
+            <div>
+              <div class="contact-label">Phone & WhatsApp</div>
+              <div class="contact-val">+977 9868909630</div>
+            </div>
+          </a>
+
+          <div class="contact-item-link">
+            <div class="contact-icon"><i class="fas fa-location-dot"></i></div>
+            <div>
+              <div class="contact-label">Location</div>
+              <div class="contact-val">28 Bagbazar, Kathmandu, Nepal</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+            <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="flex:1;">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+            <a href="https://www.linkedin.com/in/jitendra-sharma-25b5ab20a" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="flex:1;">
+              <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+          </div>
+        </div>
+
+        <!-- Interactive Contact Form -->
+        <div class="contact-form-card">
+          <form id="portfolioContactForm">
+            <!-- Anti-Spam Honeypot Field -->
+            <input type="text" name="website_shield" style="display:none;" tabindex="-1" autocomplete="off">
+
+            <div class="form-group">
+              <label for="contactName" class="form-label">Your Name *</label>
+              <input type="text" id="contactName" class="form-input" placeholder="e.g. Alex Morgan" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail" class="form-label">Your Email *</label>
+              <input type="email" id="contactEmail" class="form-input" placeholder="alex@company.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactSubject" class="form-label">Subject / Purpose</label>
+              <input type="text" id="contactSubject" class="form-input" placeholder="e.g. Software Role / Cloud Infrastructure Project">
+            </div>
+
+            <div class="form-group">
+              <label for="contactMessage" class="form-label">Message *</label>
+              <textarea id="contactMessage" class="form-input" rows="5" placeholder="Share project details, job scope, or collaboration ideas..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;">
+              <i class="fas fa-paper-plane"></i> <span data-i18n="send_message">Send Message</span>
+            </button>
+
+            <div id="contactStatusMsg" class="form-status-msg"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       12. Footer
+       ====================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="logo">
+          <div class="logo-badge">JS</div>
+          <div class="logo-text">
+            <span class="logo-name">Jitendra Sharma</span>
+            <span class="logo-sub">SOFTWARE / AI / INFRA</span>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+          <a href="#about" class="nav-link">About</a>
+          <a href="#projects" class="nav-link">Projects</a>
+          <a href="#experience" class="nav-link">Experience</a>
+          <a href="#skills" class="nav-link">Skills</a>
+          <a href="#certifications" class="nav-link">Certifications</a>
+          <a href="#contact" class="nav-link">Contact</a>
+          <a href="admin/" class="nav-link" style="color:var(--accent-primary);"><i class="fas fa-lock" style="font-size:0.75rem;"></i> Admin</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          © <span id="currentYear">2026</span> Jitendra Sharma. Built with precision, performance, and modern web standards.
+        </div>
+        <div style="display:flex; align-items:center; gap:16px;">
+          <a href="https://github.com/Jitendra83-coder" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);"><i class="fab fa-github"></i></a>
+          <a href="https://www.linkedin.com/in/jitendra-sharma-25b5ab20a" target="_blank" rel="noopener noreferrer" style="color:var(--text-muted);"><i class="fab fa-linkedin"></i></a>
+          <a href="#home" style="color:var(--text-muted); font-size:0.85rem;"><i class="fas fa-arrow-up"></i> Top</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase Compat Scripts for Real-time Cloud Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="admin/firebase-config.js"></script>
+
+  <!-- Core Script -->
+  <script src="script.js"></script>
 </body>
 
 </html>

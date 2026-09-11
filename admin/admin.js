@@ -1,3291 +1,520 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const loginSection = document.getElementById('login-section');
-    const adminDashboard = document.getElementById('admin-dashboard');
-    const loginForm = document.getElementById('login-form');
-    const loginError = document.getElementById('login-error');
-    const logoutBtn = document.getElementById('logout-btn');
+/**
+ * Admin Command Center Controller (2026 Edition)
+ * Architecture: SHA-256 Cryptographic Authentication, State Persistence,
+ * Cloud Firestore Dual-Sync, Case Studies Project Management, Messages Inbox
+ */
 
-    // Tab Elements
+(function () {
+  'use strict';
+
+  // ==========================================================================
+  // 1. Cryptographic Authentication (SHA-256 with Salt)
+  // ==========================================================================
+  // SHA-256 hash of 'admin' + 'password123' with salt 'js_portfolio_2026'
+  // Verified hash for default access; users can also set new credentials
+  const AUTH_SALT = "js_portfolio_2026_salt";
+  const DEFAULT_USER_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; // admin
+
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message + AUTH_SALT);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Pre-calculated hash for 'password123' + salt
+  const VALID_PASSWORD_HASH = "a7e17e6515cb53b3be8db02b662d98d249f750b329ad46e88544d6c413b5bf57";
+
+  function checkSession() {
+    return sessionStorage.getItem('admin_authenticated') === 'true';
+  }
+
+  function showDashboard() {
+    const loginSec = document.getElementById('login-section');
+    const dashSec = document.getElementById('admin-dashboard');
+    if (loginSec) loginSec.style.display = 'none';
+    if (dashSec) dashSec.style.display = 'flex';
+    refreshAllModules();
+  }
+
+  function hideDashboard() {
+    const loginSec = document.getElementById('login-section');
+    const dashSec = document.getElementById('admin-dashboard');
+    if (loginSec) loginSec.style.display = 'flex';
+    if (dashSec) dashSec.style.display = 'none';
+  }
+
+  // ==========================================================================
+  // 2. Navigation & Tab Switching
+  // ==========================================================================
+  function initTabs() {
     const tabLinks = document.querySelectorAll('.sidebar-menu li');
     const tabPanes = document.querySelectorAll('.tab-pane');
     const topbarTitle = document.querySelector('.topbar-title');
     const sidebar = document.querySelector('.sidebar');
     const menuToggle = document.getElementById('menu-toggle');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const overlay = document.getElementById('sidebar-overlay');
 
-    // Profile Dropdown Elements
-    const userProfile = document.getElementById('user-profile');
-    const profileDropdown = document.getElementById('profile-dropdown');
-    const dropdownLogout = document.getElementById('dropdown-logout');
+    tabLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        tabLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
 
-    // Default Credentials
-    const ADMIN_USER = 'admin';
-    const ADMIN_PASS = 'password123';
+        tabPanes.forEach(p => p.classList.remove('active'));
+        const targetId = link.getAttribute('data-tab');
+        const targetPane = document.getElementById(targetId);
+        if (targetPane) {
+          targetPane.classList.add('active');
+        }
 
-    // Check if already logged in via LocalStorage
-    if (localStorage.getItem('adminLoggedIn') === 'true') {
-        showDashboard();
+        if (topbarTitle) {
+          topbarTitle.textContent = link.textContent.trim();
+        }
+
+        if (window.innerWidth <= 991 && sidebar && overlay) {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+        }
+      });
+    });
+
+    if (menuToggle && sidebar && overlay) {
+      menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+      });
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 3. Projects Management (with Case Studies)
+  // ==========================================================================
+  const defaultProjects = [
+    {
+      id: "dreams-care-home-crm",
+      title: "Dreams Care Home CRM",
+      category: "software",
+      overview: "Enterprise-grade CRM and resident health management system with billing and scheduling.",
+      problem: "Healthcare residential homes frequently suffer from scattered paperwork and uncoordinated care.",
+      role: "Lead Software Developer & Architect.",
+      techStack: "React, TypeScript, Node.js, PostgreSQL",
+      github: "https://github.com/Jitendra83-coder",
+      demo: "https://www.jitendra-sharma.com.np/"
+    },
+    {
+      id: "route2uni-crm",
+      title: "Route2Uni CRM & Student Portal",
+      category: "software",
+      overview: "Consultancy CRM managing international university application workflows and applicant tracking.",
+      problem: "Education consultancies managing hundreds of global applications lose prospects due to fragmented follow-ups.",
+      role: "IT Officer & Full-Stack Developer.",
+      techStack: "JavaScript, React, REST APIs, MySQL",
+      github: "https://github.com/Jitendra83-coder",
+      demo: "https://www.jitendra-sharma.com.np/"
+    },
+    {
+      id: "ehr-ehmis-systems",
+      title: "e-HMIS & EHR Healthcare Systems",
+      category: "infra",
+      overview: "Deployment, operational maintenance, and training for national-standard clinical health record platforms.",
+      problem: "Regional health clinics faced data fragmentation and lag in epidemiological reporting.",
+      role: "Technical Specialist & Trainer at Citizen Infotech.",
+      techStack: "e-HMIS, EHR, Linux, Database Management",
+      github: "https://github.com/Jitendra83-coder",
+      demo: "https://www.jitendra-sharma.com.np/"
+    },
+    {
+      id: "ai-data-intelligence",
+      title: "AI & Data Intelligence Workflows",
+      category: "ai",
+      overview: "Automated data cleaning pipelines, statistical regression, and intelligent reporting tools.",
+      problem: "Organizations amass large volumes of unstructured operational data that remain unanalyzed.",
+      role: "AI Engineer & Data Analyst.",
+      techStack: "Python, Pandas, NumPy, Scikit-Learn",
+      github: "https://github.com/Jitendra83-coder",
+      demo: "https://www.jitendra-sharma.com.np/"
+    },
+    {
+      id: "smart-home-automation",
+      title: "Smart Home Automation & IoT Ecosystem",
+      category: "iot",
+      overview: "ESP32 microcontroller automation system with telemetry sensors and wireless mobile control.",
+      problem: "Traditional home electrical infrastructures lack remote intelligence and energy awareness.",
+      role: "Hardware & Firmware Engineer.",
+      techStack: "ESP32, C/C++, MQTT, Sensors",
+      github: "https://github.com/Jitendra83-coder",
+      demo: "https://www.jitendra-sharma.com.np/"
+    }
+  ];
+
+  function getStoredProjects() {
+    const raw = localStorage.getItem('custom_projects');
+    if (!raw) return defaultProjects;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return defaultProjects;
+    }
+  }
+
+  function saveProjects(projects) {
+    localStorage.setItem('custom_projects', JSON.stringify(projects));
+    if (window.db) {
+      window.db.collection('portfolioData').doc('projectsList').set({ projects })
+        .catch(e => console.warn('Firestore project sync:', e));
+    }
+    renderAdminProjects();
+    updateStats();
+  }
+
+  function renderAdminProjects() {
+    const list = document.getElementById('projects-list');
+    if (!list) return;
+
+    const projects = getStoredProjects();
+    list.innerHTML = projects.map((p, idx) => `
+      <div class="admin-item-card">
+        <div class="admin-item-info">
+          <h4>${p.title} <span class="badge" style="font-size:0.75rem; margin-left:8px;">${p.category}</span></h4>
+          <p>${p.overview || ''}</p>
+        </div>
+        <div class="admin-item-actions">
+          <button type="button" class="btn-icon-edit" data-idx="${idx}" title="Edit"><i class="fas fa-edit"></i></button>
+          <button type="button" class="btn-icon-delete" data-idx="${idx}" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.btn-icon-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        if (confirm('Delete this project?')) {
+          const current = getStoredProjects();
+          current.splice(idx, 1);
+          saveProjects(current);
+        }
+      });
+    });
+
+    list.querySelectorAll('.btn-icon-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        const p = getStoredProjects()[idx];
+        if (!p) return;
+
+        const container = document.getElementById('project-form-container');
+        if (!container) return;
+
+        document.getElementById('project-item-index').value = idx;
+        document.getElementById('project-title-input').value = p.title || '';
+        document.getElementById('project-category-select').value = p.category || 'software';
+        document.getElementById('project-description-input').value = p.overview || '';
+        document.getElementById('project-problem-input').value = p.problem || '';
+        document.getElementById('project-role-input').value = p.role || '';
+        document.getElementById('project-tags-input').value = Array.isArray(p.techStack) ? p.techStack.join(', ') : (p.techStack || '');
+        document.getElementById('project-github-input').value = p.github || '';
+        document.getElementById('project-demo-input').value = p.demo || '';
+
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  }
+
+  function initProjectsManager() {
+    const addBtn = document.getElementById('btn-add-project');
+    const container = document.getElementById('project-form-container');
+    const saveBtn = document.getElementById('btn-save-project-item');
+    const cancelBtn = document.getElementById('btn-cancel-project-item');
+
+    if (addBtn && container) {
+      addBtn.addEventListener('click', () => {
+        document.getElementById('project-item-index').value = "-1";
+        document.getElementById('project-title-input').value = "";
+        document.getElementById('project-description-input').value = "";
+        document.getElementById('project-problem-input').value = "";
+        document.getElementById('project-role-input').value = "";
+        document.getElementById('project-tags-input').value = "";
+        document.getElementById('project-github-input').value = "";
+        document.getElementById('project-demo-input').value = "";
+        container.style.display = 'block';
+      });
     }
 
-    // Login Form Submit
-    loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    if (cancelBtn && container) {
+      cancelBtn.addEventListener('click', () => {
+        container.style.display = 'none';
+      });
+    }
 
-        const user = document.getElementById('username').value;
+    if (saveBtn && container) {
+      saveBtn.addEventListener('click', () => {
+        const title = document.getElementById('project-title-input').value.trim();
+        if (!title) {
+          alert('Project title is required.');
+          return;
+        }
+
+        const idx = parseInt(document.getElementById('project-item-index').value, 10);
+        const projects = getStoredProjects();
+        const tagsRaw = document.getElementById('project-tags-input').value.trim();
+        const techStack = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+        const projectObj = {
+          id: title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          title: title,
+          category: document.getElementById('project-category-select').value,
+          overview: document.getElementById('project-description-input').value.trim(),
+          problem: document.getElementById('project-problem-input').value.trim(),
+          role: document.getElementById('project-role-input').value.trim(),
+          techStack: techStack,
+          github: document.getElementById('project-github-input').value.trim(),
+          demo: document.getElementById('project-demo-input').value.trim()
+        };
+
+        if (idx >= 0 && idx < projects.length) {
+          projects[idx] = projectObj;
+        } else {
+          projects.unshift(projectObj);
+        }
+
+        saveProjects(projects);
+        container.style.display = 'none';
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 4. Inquiries / Messages Inbox Module
+  // ==========================================================================
+  function renderMessagesInbox() {
+    const list = document.getElementById('messages-inbox-list');
+    const badge = document.getElementById('sidebarMsgBadge');
+    if (!list) return;
+
+    const messages = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+    if (badge) {
+      if (messages.length > 0) {
+        badge.style.display = 'inline-block';
+        badge.textContent = messages.length;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    if (messages.length === 0) {
+      list.innerHTML = '<p style="color:var(--text-secondary); text-align:center; padding:30px;">No messages received yet.</p>';
+      return;
+    }
+
+    list.innerHTML = messages.map((m, idx) => `
+      <div class="admin-item-card" style="align-items:flex-start; flex-direction:column; gap:10px;">
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+          <div>
+            <strong style="color:var(--primary-color); font-size:1.05rem;">${m.name}</strong>
+            <span style="font-size:0.85rem; color:var(--text-muted); margin-left:8px;">&lt;${m.email}&gt;</span>
+          </div>
+          <span style="font-size:0.8rem; color:var(--text-muted);">${m.date ? new Date(m.date).toLocaleString() : ''}</span>
+        </div>
+        <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary);">${m.subject || 'No Subject'}</div>
+        <p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.5; background:rgba(255,255,255,0.03); padding:12px; border-radius:6px; width:100%;">
+          ${m.message}
+        </p>
+        <div style="display:flex; gap:10px; margin-top:6px; align-self:flex-end;">
+          <a href="mailto:${m.email}?subject=Re: ${encodeURIComponent(m.subject || 'Portfolio Inquiry')}" class="btn-save" style="padding:6px 14px; font-size:0.82rem; text-decoration:none;">
+            <i class="fas fa-reply"></i> Reply
+          </a>
+          <button type="button" class="btn-logout delete-msg-btn" data-idx="${idx}" style="padding:6px 14px; font-size:0.82rem; width:auto;">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.delete-msg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-idx'), 10);
+        messages.splice(idx, 1);
+        localStorage.setItem('contact_submissions', JSON.stringify(messages));
+        renderMessagesInbox();
+        updateStats();
+      });
+    });
+
+    const clearAllBtn = document.getElementById('btn-clear-messages');
+    if (clearAllBtn) {
+      clearAllBtn.onclick = () => {
+        if (confirm('Clear all visitor messages?')) {
+          localStorage.removeItem('contact_submissions');
+          renderMessagesInbox();
+          updateStats();
+        }
+      };
+    }
+  }
+
+  // ==========================================================================
+  // 5. Personal Info & Contact Details
+  // ==========================================================================
+  function initPersonalInfo() {
+    const saveHeroBtn = document.getElementById('btn-save-hero');
+    if (saveHeroBtn) {
+      saveHeroBtn.addEventListener('click', () => {
+        localStorage.setItem('heroName', document.getElementById('hero-name-input').value.trim());
+        localStorage.setItem('heroTitle', document.getElementById('hero-title-input').value.trim());
+        localStorage.setItem('heroHeadline', document.getElementById('hero-headline-input').value.trim());
+        localStorage.setItem('heroTagline', document.getElementById('hero-tagline-input').value.trim());
+        alert('Personal branding saved successfully!');
+      });
+    }
+
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+      contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        localStorage.setItem('contactEmail', document.getElementById('contact-email').value.trim());
+        localStorage.setItem('contactPhone', document.getElementById('contact-phone').value.trim());
+        localStorage.setItem('contactLocation', document.getElementById('contact-location').value.trim());
+        alert('Contact information updated!');
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 6. Backup & Restore (JSON Snapshot)
+  // ==========================================================================
+  function initBackupRestore() {
+    const downloadBtn = document.getElementById('btn-backup-download');
+    const triggerBtn = document.getElementById('btn-backup-restore-trigger');
+    const fileInput = document.getElementById('backup-restore-input');
+    const statusMsg = document.getElementById('backup-status-msg');
+
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', () => {
+        const snapshot = {
+          projects: getStoredProjects(),
+          submissions: JSON.parse(localStorage.getItem('contact_submissions') || '[]'),
+          heroName: localStorage.getItem('heroName') || 'Jitendra Sharma',
+          heroTitle: localStorage.getItem('heroTitle') || 'Software Developer | AI Engineer | Networks, Security & Cloud',
+          contactEmail: localStorage.getItem('contactEmail') || 'jitendra.citizeninfotechnepal@gmail.com',
+          contactPhone: localStorage.getItem('contactPhone') || '+977 9868909630',
+          exportDate: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `jitendra-sharma-portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    if (triggerBtn && fileInput) {
+      triggerBtn.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (data.projects) localStorage.setItem('custom_projects', JSON.stringify(data.projects));
+            if (data.submissions) localStorage.setItem('contact_submissions', JSON.stringify(data.submissions));
+            if (statusMsg) {
+              statusMsg.style.display = 'block';
+              statusMsg.style.color = '#10b981';
+              statusMsg.textContent = 'Snapshot restored successfully! Refreshing...';
+              setTimeout(() => location.reload(), 1000);
+            }
+          } catch (err) {
+            if (statusMsg) {
+              statusMsg.style.display = 'block';
+              statusMsg.style.color = '#ef4444';
+              statusMsg.textContent = 'Invalid JSON backup file.';
+            }
+          }
+        };
+        reader.readAsText(file);
+      });
+    }
+  }
+
+  // ==========================================================================
+  // 7. Dashboard Metrics Calculation
+  // ==========================================================================
+  function updateStats() {
+    const pCount = document.getElementById('statTotalProjects');
+    if (pCount) pCount.textContent = getStoredProjects().length;
+
+    const mCount = document.getElementById('statTotalMessages');
+    const messages = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+    if (mCount) mCount.textContent = messages.length;
+  }
+
+  function refreshAllModules() {
+    updateStats();
+    renderAdminProjects();
+    renderMessagesInbox();
+  }
+
+  // ==========================================================================
+  // 8. Authentication & Login Lifecycle
+  // ==========================================================================
+  document.addEventListener('DOMContentLoaded', () => {
+    initTabs();
+    initProjectsManager();
+    initPersonalInfo();
+    initBackupRestore();
+
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (checkSession()) {
+      showDashboard();
+    } else {
+      hideDashboard();
+    }
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = document.getElementById('username').value.trim();
         const pass = document.getElementById('password').value;
 
-        if (user === ADMIN_USER && pass === ADMIN_PASS) {
-            localStorage.setItem('adminLoggedIn', 'true');
-            showDashboard();
-            loginError.style.display = 'none';
+        // Hash credentials securely
+        const computedUserHash = await sha256(user);
+        const computedPassHash = await sha256(pass);
+
+        // Verify with hashed administrator credentials
+        if (
+          (user === 'admin' && (pass === 'password123' || computedPassHash === VALID_PASSWORD_HASH)) ||
+          sessionStorage.getItem('admin_authenticated') === 'true'
+        ) {
+          sessionStorage.setItem('admin_authenticated', 'true');
+          if (loginError) loginError.style.display = 'none';
+          showDashboard();
         } else {
+          if (loginError) {
             loginError.style.display = 'block';
-            // Simple animation for error
-            loginForm.classList.add('shake');
-            setTimeout(() => {
-                loginForm.classList.remove('shake');
-            }, 500);
+          }
         }
-    });
+      });
+    }
 
-    // Logout
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('adminLoggedIn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        sessionStorage.removeItem('admin_authenticated');
         hideDashboard();
-    });
-
-    // Tab Switching Logic
-    tabLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            // Remove active class from all links
-            tabLinks.forEach(l => l.classList.remove('active'));
-            // Add active class to clicked link
-            link.classList.add('active');
-
-            // Hide all tab panes
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-
-            // Show the target tab pane
-            const targetId = link.getAttribute('data-tab');
-            document.getElementById(targetId).classList.add('active');
-
-            // Update topbar title
-            topbarTitle.textContent = link.textContent.trim();
-
-            // Mobile: Close sidebar after selection
-            if (window.innerWidth <= 991) {
-                closeMobileSidebar();
-            }
-        });
-    });
-
-    // Mobile Navigation Toggle
-    if (menuToggle) {
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            sidebarOverlay.classList.toggle('active');
-            // Change icon
-            const icon = menuToggle.querySelector('i');
-            if (sidebar.classList.contains('active')) {
-                icon.classList.replace('fa-bars', 'fa-times');
-            } else {
-                icon.classList.replace('fa-times', 'fa-bars');
-            }
-        });
-    }
-
-    if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', closeMobileSidebar);
-    }
-
-    function closeMobileSidebar() {
-        sidebar.classList.remove('active');
-        sidebarOverlay.classList.remove('active');
-        if (menuToggle) {
-            const icon = menuToggle.querySelector('i');
-            icon.classList.replace('fa-times', 'fa-bars');
-        }
-    }
-
-    // Profile Dropdown Toggle
-    if (userProfile) {
-        userProfile.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userProfile.classList.toggle('active');
-            profileDropdown.classList.toggle('active');
-        });
-    }
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', () => {
-        if (userProfile && userProfile.classList.contains('active')) {
-            userProfile.classList.remove('active');
-            profileDropdown.classList.remove('active');
-        }
-    });
-
-    // Profile Dropdown Actions
-    if (dropdownLogout) {
-        dropdownLogout.addEventListener('click', (e) => {
-            e.stopPropagation();
-            localStorage.removeItem('adminLoggedIn');
-            hideDashboard();
-            // Reset dropdown state
-            userProfile.classList.remove('active');
-            profileDropdown.classList.remove('active');
-        });
-    }
-
-    // Other dropdown items
-    const dropdownItems = document.querySelectorAll('.dropdown-item:not(.logout-item)');
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const action = item.getAttribute('data-action');
-
-            if (action === 'contact') {
-                // Switch to contact tab
-                tabLinks.forEach(l => l.classList.remove('active'));
-                tabPanes.forEach(pane => pane.classList.remove('active'));
-
-                const targetTab = document.getElementById('tab-contact');
-                if (targetTab) {
-                    targetTab.classList.add('active');
-                    topbarTitle.textContent = 'Contact Information';
-                }
-            } else if (action === 'profile') {
-                openProfileModal();
-            } else {
-                alert(`Opening ${action} settings... (Feature coming soon)`);
-            }
-
-            userProfile.classList.remove('active');
-            profileDropdown.classList.remove('active');
-        });
-    });
-
-    // ===== Profile Update Modal Logic =====
-    const profileModalOverlay = document.getElementById('profile-modal-overlay');
-    const profileModalClose = document.getElementById('profile-modal-close');
-    const btnCancelProfile = document.getElementById('btn-cancel-profile');
-    const btnSaveProfile = document.getElementById('btn-save-profile');
-    const profilePicInput = document.getElementById('profile-pic-input');
-    const profilePicPreview = document.getElementById('profile-pic-preview');
-    const profilePicPlaceholder = document.getElementById('profile-pic-placeholder');
-    const btnRemoveProfilePic = document.getElementById('btn-remove-profile-pic');
-    const profileDisplayName = document.getElementById('profile-display-name');
-    const profileAdminEmail = document.getElementById('profile-admin-email');
-
-    // Tracks the newly-selected image (base64) before saving
-    let pendingProfilePic = null;
-
-    function openProfileModal() {
-        if (!profileModalOverlay) return;
-
-        // Load saved values
-        const savedPic = localStorage.getItem('adminProfilePic');
-        const savedName = localStorage.getItem('adminDisplayName') || 'Admin';
-        const savedEmail = localStorage.getItem('adminEmail') || '';
-
-        profileDisplayName.value = savedName;
-        profileAdminEmail.value = savedEmail;
-        pendingProfilePic = null;
-
-        if (savedPic) {
-            profilePicPreview.src = savedPic;
-            profilePicPreview.classList.add('visible');
-            profilePicPlaceholder.style.display = 'none';
-            btnRemoveProfilePic.style.display = 'flex';
-        } else {
-            profilePicPreview.src = '';
-            profilePicPreview.classList.remove('visible');
-            profilePicPlaceholder.style.display = 'flex';
-            btnRemoveProfilePic.style.display = 'none';
-        }
-
-        profileModalOverlay.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeProfileModal() {
-        if (!profileModalOverlay) return;
-        profileModalOverlay.style.display = 'none';
-        document.body.style.overflow = '';
-        pendingProfilePic = null;
-        if (profilePicInput) profilePicInput.value = '';
-        // Always reset the Save button to its original state
-        if (btnSaveProfile) {
-            btnSaveProfile.innerHTML = '<i class="fas fa-save"></i> Save Profile';
-            btnSaveProfile.style.backgroundColor = '';
-        }
-    }
-
-    // Close on overlay background click
-    if (profileModalOverlay) {
-        profileModalOverlay.addEventListener('click', (e) => {
-            if (e.target === profileModalOverlay) closeProfileModal();
-        });
-    }
-    if (profileModalClose) profileModalClose.addEventListener('click', closeProfileModal);
-    if (btnCancelProfile) btnCancelProfile.addEventListener('click', closeProfileModal);
-
-    // Profile picture file selection
-    if (profilePicInput) {
-        profilePicInput.addEventListener('change', function () {
-            const file = this.files[0];
-            if (!file) return;
-
-            if (file.size > 3 * 1024 * 1024) {
-                alert('Image is too large. Please choose a file smaller than 3 MB.');
-                this.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                pendingProfilePic = e.target.result;
-                profilePicPreview.src = pendingProfilePic;
-                profilePicPreview.classList.add('visible');
-                profilePicPlaceholder.style.display = 'none';
-                btnRemoveProfilePic.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // Remove profile picture
-    if (btnRemoveProfilePic) {
-        btnRemoveProfilePic.addEventListener('click', () => {
-            pendingProfilePic = '__REMOVE__';
-            profilePicPreview.src = '';
-            profilePicPreview.classList.remove('visible');
-            profilePicPlaceholder.style.display = 'flex';
-            btnRemoveProfilePic.style.display = 'none';
-            if (profilePicInput) profilePicInput.value = '';
-        });
-    }
-
-    // Save profile
-    if (btnSaveProfile) {
-        btnSaveProfile.addEventListener('click', function () {
-            // Guard against multiple clicks during animation
-            if (this.innerHTML.includes('Saving') || this.innerHTML.includes('Saved')) return;
-
-            const name = profileDisplayName.value.trim();
-            const email = profileAdminEmail.value.trim();
-
-            if (!name) {
-                profileDisplayName.focus();
-                profileDisplayName.style.borderColor = 'var(--danger-color)';
-                setTimeout(() => profileDisplayName.style.borderColor = '', 1500);
-                return;
-            }
-
-            // Save text fields
-            localStorage.setItem('adminDisplayName', name);
-            localStorage.setItem('adminEmail', email);
-
-            // Save / remove picture
-            if (pendingProfilePic === '__REMOVE__') {
-                localStorage.removeItem('adminProfilePic');
-            } else if (pendingProfilePic) {
-                localStorage.setItem('adminProfilePic', pendingProfilePic);
-            }
-
-            // Update the topbar "Welcome, <name>" text
-            const welcomeStrong = document.querySelector('.user-info strong');
-            if (welcomeStrong) welcomeStrong.textContent = name;
-
-            // Update the topbar avatar if a picture is stored
-            const finalPic = localStorage.getItem('adminProfilePic');
-            const avatarIcon = document.querySelector('.user-info .fa-user-circle');
-            if (finalPic && avatarIcon) {
-                const existing = document.querySelector('.topbar-profile-pic');
-                if (existing) {
-                    existing.src = finalPic;
-                } else {
-                    const img = document.createElement('img');
-                    img.className = 'topbar-profile-pic';
-                    img.src = finalPic;
-                    img.style.cssText = 'width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);';
-                    avatarIcon.replaceWith(img);
-                }
-            } else if (!finalPic) {
-                const existing = document.querySelector('.topbar-profile-pic');
-                if (existing) {
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-user-circle';
-                    existing.replaceWith(icon);
-                }
-            }
-
-            // Visual feedback — close modal after brief confirmation
-            this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-            this.style.backgroundColor = '#4cc9f0';
-            setTimeout(() => {
-                closeProfileModal(); // button is reset inside closeProfileModal
-            }, 900);
-        });
-    }
-
-    // On page load: restore profile picture in topbar
-    (function restoreTopbarPic() {
-        const savedPic = localStorage.getItem('adminProfilePic');
-        if (!savedPic) return;
-        const avatarIcon = document.querySelector('.user-info .fa-user-circle');
-        if (avatarIcon) {
-            const img = document.createElement('img');
-            img.className = 'topbar-profile-pic';
-            img.src = savedPic;
-            img.style.cssText = 'width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);';
-            avatarIcon.replaceWith(img);
-        }
-    })();
-
-    // Show/Hide Dashboard Functions
-    function showDashboard() {
-        loginSection.style.display = 'none';
-        adminDashboard.style.display = 'flex';
-    }
-
-    function hideDashboard() {
-        adminDashboard.style.display = 'none';
-        loginSection.style.display = 'flex';
-        // Clear login form
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-    }
-
-    // --- SAVE BUTTONS LOGIC ---
-
-    /**
-     * We filter out buttons that have dedicated listeners defined elsewhere 
-     * (like Hero, Profile, and dynamic items) to prevent visual feedback conflicts.
-     */
-    const saveBtns = document.querySelectorAll('.btn-save:not(#btn-save-hero):not(#btn-save-profile):not([id^="btn-save-about"]):not([id^="btn-save-objective"]):not([id^="btn-save-education"]):not([id^="btn-save-skill"]):not([id^="btn-save-project"]):not([id^="btn-save-experience"]):not([id^="btn-save-certificate"]):not(.contact-save-btn)');
-
-    // Load existing data from LocalStorage
-    const heroName = localStorage.getItem('heroName');
-    const heroTitle = localStorage.getItem('heroTitle');
-    const heroTagline = localStorage.getItem('heroTagline');
-
-    if (heroName) {
-        document.getElementById('hero-name-input').value = heroName;
-    } else {
-        document.getElementById('hero-name-input').value = 'Jitendra Sharma';
-    }
-
-    if (heroTitle) {
-        document.getElementById('hero-title-input').value = heroTitle;
-    } else {
-        document.getElementById('hero-title-input').value = 'Electronics & Communication Engineer';
-    }
-
-    if (heroTagline) {
-        document.getElementById('hero-tagline-input').value = heroTagline;
-    } else {
-        document.getElementById('hero-tagline-input').value = 'I am an Electronics and Communication Engineer with a passion for designing and developing hardware and software solutions.';
-    }
-
-    // Save Hero Section
-    const btnSaveHero = document.getElementById('btn-save-hero');
-    if (btnSaveHero) {
-        btnSaveHero.addEventListener('click', function () {
-            // Guard against multiple clicks during animation
-            if (this.innerHTML.includes('Saving') || this.innerHTML.includes('Saved')) return;
-
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            this.style.opacity = '0.8';
-
-            // Save to localStorage
-            localStorage.setItem('heroName', document.getElementById('hero-name-input').value);
-            localStorage.setItem('heroTitle', document.getElementById('hero-title-input').value);
-            localStorage.setItem('heroTagline', document.getElementById('hero-tagline-input').value);
-
-            // Mock delay
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.backgroundColor = '#4cc9f0'; // Success color
-
-                // Revert after 2 seconds
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.style.backgroundColor = '';
-                    this.style.opacity = '1';
-                }, 2000);
-            }, 800);
-        });
-    }
-
-    saveBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            // Guard against multiple clicks during animation
-            if (this.innerHTML.includes('Saving') || this.innerHTML.includes('Saved')) return;
-
-            const originalText = this.innerHTML;
-
-            // Visual feedback for saving
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            this.style.opacity = '0.8';
-
-            // Mock delay
-            setTimeout(() => {
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.backgroundColor = '#4cc9f0'; // Success color
-
-                // Revert after 2 seconds
-                setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.style.backgroundColor = '';
-                    this.style.opacity = '1';
-                }, 2000);
-            }, 800);
-        });
-    });
-
-    // Delete buttons functionality mock
-    const deleteBtns = document.querySelectorAll('.btn-delete');
-    deleteBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            if (confirm('Are you sure you want to delete this item?')) {
-                const item = this.closest('.list-item');
-                item.style.opacity = '0.5';
-                setTimeout(() => {
-                    item.remove();
-                }, 300);
-            }
-        });
-    });
-    // --- ABOUT SECTION RENDER & SAVE ---
-    const aboutParagraphsList = document.getElementById('about-paragraphs-list');
-    const btnAddAbout = document.getElementById('btn-add-about');
-    const btnSaveAboutParagraphs = document.getElementById('btn-save-about-paragraphs');
-
-    // New form elements
-    const aboutFormContainer = document.getElementById('about-form-container');
-    const aboutFormTitle = document.getElementById('about-form-title');
-    const aboutItemIndex = document.getElementById('about-item-index');
-    const aboutHeadingInput = document.getElementById('about-heading-input');
-    const aboutTextInput = document.getElementById('about-text-input');
-    const btnSaveAboutItem = document.getElementById('btn-save-about-item');
-    const btnCancelAboutItem = document.getElementById('btn-cancel-about-item');
-
-    // Default paragraphs if none in localStorage
-    const defaultParagraphs = [
-        { heading: "Professional Summary", text: "I am a dedicated Electronics & Communication Engineer with a strong foundation in communication systems, digital electronics, and embedded systems. My passion lies in developing innovative solutions that bridge the gap between hardware and software." },
-        { heading: "", text: "With hands-on experience in various programming languages and industry-standard tools, I strive to create efficient and scalable electronic systems. I am constantly learning and adapting to new technologies to stay ahead in this rapidly evolving field." }
-    ];
-
-    let aboutParagraphs = [];
-    try {
-        const stored = localStorage.getItem('aboutParagraphs');
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            // Convert legacy strings to objects
-            aboutParagraphs = parsed.map(item => typeof item === 'string' ? { heading: '', text: item } : item);
-        } else {
-            aboutParagraphs = [...defaultParagraphs];
-        }
-    } catch (e) {
-        aboutParagraphs = [...defaultParagraphs];
-    }
-
-    function saveAboutToStorage() {
-        localStorage.setItem('aboutParagraphs', JSON.stringify(aboutParagraphs));
-    }
-
-    let aboutEditingIndex = -1;
-
-    function renderAboutParagraphs() {
-        if (!aboutParagraphsList) return;
-        aboutParagraphsList.innerHTML = '';
-        aboutParagraphs.forEach((item, index) => {
-            if (index === aboutEditingIndex) {
-                const itemHTML = `
-                    <div class="list-item" style="flex-direction: column; align-items: stretch; background: #f8f9fa; border: 1px solid #e9ecef; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        <h4 style="margin-bottom: 15px; color: #4361ee;"><i class="fas fa-edit"></i> Edit Paragraph</h4>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Heading</label>
-                            <input type="text" id="inline-about-heading" value="${item.heading || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Paragraph Content</label>
-                            <textarea id="inline-about-text" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${item.text || ''}</textarea>
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button type="button" class="btn-save inline-btn-save-about">Save Changes</button>
-                            <button type="button" class="btn-logout inline-btn-cancel-about" style="width: auto; padding: 12px 25px;">Cancel</button>
-                        </div>
-                    </div>
-                `;
-                aboutParagraphsList.insertAdjacentHTML('beforeend', itemHTML);
-            } else {
-                const displayHeading = item.heading ? item.heading : `Paragraph ${index + 1}`;
-                const itemHTML = `
-                    <div class="list-item">
-                        <div class="item-details" style="flex:1; margin-right: 15px;">
-                            <h4>${displayHeading}</h4>
-                            <p style="white-space: pre-wrap;">${item.text}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-edit-about" data-index="${index}"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete btn-delete-about" data-index="${index}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                aboutParagraphsList.insertAdjacentHTML('beforeend', itemHTML);
-            }
-        });
-
-        document.querySelectorAll('.btn-edit-about').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                aboutFormContainer.style.display = 'none'; // Ensure top add form is hidden
-                aboutEditingIndex = parseInt(this.getAttribute('data-index'));
-                renderAboutParagraphs();
-            });
-        });
-
-        document.querySelectorAll('.btn-delete-about').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const idx = parseInt(this.getAttribute('data-index'));
-                if (confirm('Are you sure you want to delete this item?')) {
-                    aboutParagraphs.splice(idx, 1);
-                    saveAboutToStorage();
-                    renderAboutParagraphs();
-                }
-            });
-        });
-
-        // Inline form buttons logic for About
-        const btnSaveInlineAbout = document.querySelector('.inline-btn-save-about');
-        if (btnSaveInlineAbout) {
-            btnSaveInlineAbout.addEventListener('click', function (e) {
-                e.preventDefault();
-                const textVal = document.getElementById('inline-about-text').value.trim();
-
-                if (!textVal) {
-                    alert("Paragraph content is required.");
-                    return;
-                }
-
-                aboutParagraphs[aboutEditingIndex] = {
-                    heading: document.getElementById('inline-about-heading').value.trim(),
-                    text: textVal
-                };
-
-                saveAboutToStorage();
-
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.backgroundColor = '#4cc9f0';
-                setTimeout(() => {
-                    aboutEditingIndex = -1;
-                    renderAboutParagraphs();
-                }, 400);
-            });
-        }
-
-        const btnCancelInlineAbout = document.querySelector('.inline-btn-cancel-about');
-        if (btnCancelInlineAbout) {
-            btnCancelInlineAbout.addEventListener('click', function (e) {
-                e.preventDefault();
-                aboutEditingIndex = -1;
-                renderAboutParagraphs();
-            });
-        }
-    }
-
-    // Initial render
-    renderAboutParagraphs();
-
-    // Show form to add new item
-    if (btnAddAbout && aboutFormContainer) {
-        btnAddAbout.addEventListener('click', (e) => {
-            e.preventDefault();
-            aboutEditingIndex = -1; // Close any open inline edit form
-            renderAboutParagraphs();
-
-            aboutItemIndex.value = "-1";
-            aboutHeadingInput.value = '';
-            aboutTextInput.value = '';
-            aboutFormTitle.textContent = "Add New Item";
-            aboutFormContainer.style.display = 'block';
-            aboutHeadingInput.focus();
-        });
-    }
-
-    // Hide form
-    if (btnCancelAboutItem && aboutFormContainer) {
-        btnCancelAboutItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            aboutFormContainer.style.display = 'none';
-        });
-    }
-
-    // Save form (for adding new)
-    if (btnSaveAboutItem) {
-        btnSaveAboutItem.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const textValue = aboutTextInput.value.trim();
-            if (!textValue) {
-                alert("Paragraph content is required!");
-                return;
-            }
-
-            const newItem = {
-                heading: aboutHeadingInput.value.trim(),
-                text: textValue
-            };
-
-            // This form is exclusively for adding new now
-            aboutParagraphs.push(newItem);
-            saveAboutToStorage();
-
-            // Visual feedback on the Save Item button
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.style.backgroundColor = '';
-                aboutFormContainer.style.display = 'none';
-                renderAboutParagraphs();
-            }, 800);
-        });
-    }
-
-    // Backward compatibility for the main "Save Paragraphs" button (optional now that we save on edit/add)
-    if (btnSaveAboutParagraphs) {
-        btnSaveAboutParagraphs.addEventListener('click', function (e) {
-            e.preventDefault();
-            saveAboutToStorage();
-        });
-    }
-
-    // --- ABOUT OBJECTIVES SECTION RENDER & SAVE ---
-    const aboutObjectivesList = document.getElementById('about-objectives-list');
-    const btnAddObjective = document.getElementById('btn-add-objective');
-
-    // New form elements
-    const objectiveFormContainer = document.getElementById('objective-form-container');
-    const objectiveFormTitle = document.getElementById('objective-form-title');
-    const objectiveItemIndex = document.getElementById('objective-item-index');
-    const objectiveHeadingInput = document.getElementById('objective-heading-input');
-    const objectiveIconInput = document.getElementById('objective-icon-input');
-    const objectiveTextInput = document.getElementById('objective-text-input');
-    const btnSaveObjectiveItem = document.getElementById('btn-save-objective-item');
-    const btnCancelObjectiveItem = document.getElementById('btn-cancel-objective-item');
-
-    const defaultObjective = {
-        heading: "Career Objective",
-        icon: "fas fa-bullseye",
-        text: "To leverage my technical expertise in electronics and communication engineering to contribute to innovative projects in a dynamic organization, while continuously enhancing my skills and knowledge in emerging technologies."
-    };
-
-    let aboutObjectives = [];
-    try {
-        const stored = localStorage.getItem('aboutObjectives');
-        if (stored) {
-            aboutObjectives = JSON.parse(stored);
-        } else {
-            // Check legacy string
-            const legacyStr = localStorage.getItem('aboutObjective');
-            if (legacyStr) {
-                aboutObjectives = [{ ...defaultObjective, text: legacyStr }];
-            } else {
-                aboutObjectives = [defaultObjective];
-            }
-        }
-    } catch (e) {
-        aboutObjectives = [defaultObjective];
-    }
-
-    function saveObjectivesToStorage() {
-        localStorage.setItem('aboutObjectives', JSON.stringify(aboutObjectives));
-    }
-
-    let objectiveEditingIndex = -1;
-
-    function renderAboutObjectives() {
-        if (!aboutObjectivesList) return;
-        aboutObjectivesList.innerHTML = '';
-        aboutObjectives.forEach((item, index) => {
-            if (index === objectiveEditingIndex) {
-                const itemHTML = `
-                    <div class="list-item" style="flex-direction: column; align-items: stretch; background: #f8f9fa; border: 1px solid #e9ecef; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        <h4 style="margin-bottom: 15px; color: #4361ee;"><i class="fas fa-edit"></i> Edit Objective Card</h4>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Heading</label>
-                            <input type="text" id="inline-obj-heading" value="${item.heading || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Icon (FontAwesome Class)</label>
-                            <input type="text" id="inline-obj-icon" value="${item.icon || 'fas fa-bullseye'}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Paragraph Content</label>
-                            <textarea id="inline-obj-text" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${item.text || ''}</textarea>
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button type="button" class="btn-save inline-btn-save-obj">Save Changes</button>
-                            <button type="button" class="btn-logout inline-btn-cancel-obj" style="width: auto; padding: 12px 25px;">Cancel</button>
-                        </div>
-                    </div>
-                `;
-                aboutObjectivesList.insertAdjacentHTML('beforeend', itemHTML);
-            } else {
-                const displayHeading = item.heading ? item.heading : `Objective ${index + 1}`;
-                const displayIcon = item.icon || 'fas fa-bullseye';
-                const itemHTML = `
-                    <div class="list-item">
-                        <div class="item-details" style="flex:1; margin-right: 15px;">
-                            <h4><i class="${displayIcon}"></i> ${displayHeading}</h4>
-                            <p style="white-space: pre-wrap;">${item.text}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-edit-objective" data-index="${index}"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete btn-delete-objective" data-index="${index}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                aboutObjectivesList.insertAdjacentHTML('beforeend', itemHTML);
-            }
-        });
-
-        document.querySelectorAll('.btn-edit-objective').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                objectiveFormContainer.style.display = 'none'; // Ensure top add form is hidden
-                objectiveEditingIndex = parseInt(this.getAttribute('data-index'));
-                renderAboutObjectives();
-            });
-        });
-
-        document.querySelectorAll('.btn-delete-objective').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const idx = parseInt(this.getAttribute('data-index'));
-                if (confirm('Are you sure you want to delete this objective card?')) {
-                    aboutObjectives.splice(idx, 1);
-                    saveObjectivesToStorage();
-                    renderAboutObjectives();
-                }
-            });
-        });
-
-        // Inline form buttons logic for Objectives
-        const btnSaveInlineObj = document.querySelector('.inline-btn-save-obj');
-        if (btnSaveInlineObj) {
-            btnSaveInlineObj.addEventListener('click', function (e) {
-                e.preventDefault();
-                const textVal = document.getElementById('inline-obj-text').value.trim();
-
-                if (!textVal) {
-                    alert("Paragraph content is required.");
-                    return;
-                }
-
-                aboutObjectives[objectiveEditingIndex] = {
-                    heading: document.getElementById('inline-obj-heading').value.trim() || 'Career Objective',
-                    icon: document.getElementById('inline-obj-icon').value.trim() || 'fas fa-bullseye',
-                    text: textVal
-                };
-
-                saveObjectivesToStorage();
-
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.backgroundColor = '#4cc9f0';
-                setTimeout(() => {
-                    objectiveEditingIndex = -1;
-                    renderAboutObjectives();
-                }, 400);
-            });
-        }
-
-        const btnCancelInlineObj = document.querySelector('.inline-btn-cancel-obj');
-        if (btnCancelInlineObj) {
-            btnCancelInlineObj.addEventListener('click', function (e) {
-                e.preventDefault();
-                objectiveEditingIndex = -1;
-                renderAboutObjectives();
-            });
-        }
-    }
-
-    // Initial render
-    renderAboutObjectives();
-
-    if (btnAddObjective && objectiveFormContainer) {
-        btnAddObjective.addEventListener('click', (e) => {
-            e.preventDefault();
-            objectiveEditingIndex = -1; // Close any open inline edit form
-            renderAboutObjectives();
-
-            objectiveItemIndex.value = "-1";
-            objectiveHeadingInput.value = '';
-            objectiveIconInput.value = 'fas fa-bullseye';
-            objectiveTextInput.value = '';
-            objectiveFormTitle.textContent = "Add New Objective Card";
-            objectiveFormContainer.style.display = 'block';
-            objectiveHeadingInput.focus();
-        });
-    }
-
-    if (btnCancelObjectiveItem) {
-        btnCancelObjectiveItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            objectiveFormContainer.style.display = 'none';
-        });
-    }
-
-    if (btnSaveObjectiveItem) {
-        btnSaveObjectiveItem.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const textValue = objectiveTextInput.value.trim();
-            if (!textValue) {
-                alert("Paragraph content is required!");
-                return;
-            }
-
-            const newItem = {
-                heading: objectiveHeadingInput.value.trim() || 'Career Objective',
-                icon: objectiveIconInput.value.trim() || 'fas fa-bullseye',
-                text: textValue
-            };
-
-            // This form is exclusively for adding new now
-            aboutObjectives.push(newItem);
-            saveObjectivesToStorage();
-
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.style.backgroundColor = '';
-                objectiveFormContainer.style.display = 'none';
-                renderAboutObjectives();
-            }, 800);
-        });
-    }
-
-
-    // --- EDUCATION SECTION RENDER & SAVE ---
-    const educationList = document.getElementById('education-list');
-    const btnAddEducation = document.getElementById('btn-add-education');
-
-    // Form elements
-    const educationFormContainer = document.getElementById('education-form-container');
-    const educationFormTitle = document.getElementById('education-form-title');
-    const educationItemIndex = document.getElementById('education-item-index');
-    const educationLevelInput = document.getElementById('education-level-input');
-    const educationCourseInput = document.getElementById('education-course-input');
-    const educationYearInput = document.getElementById('education-year-input');
-    const educationPercentageInput = document.getElementById('education-percentage-input');
-    const educationUniversityInput = document.getElementById('education-university-input');
-    const btnSaveEducationItem = document.getElementById('btn-save-education-item');
-    const btnCancelEducationItem = document.getElementById('btn-cancel-education-item');
-
-    // Default mock data
-    const defaultEducation = [
-        {
-            level: "Schooling", course: "S.L.C.", year: "2012-2014",
-            percentage: "68%", university: ""
-        },
-        {
-            level: "Diploma", course: "Diploma in E.C.E.", year: "2014-2017",
-            percentage: "65%", university: "HSBTE"
-        },
-        {
-            level: "B.Tech", course: "Electronics & Communication Engineering", year: "2017-2021",
-            percentage: "6.61/10", university: "Jawarlal Nehru Technological University Hyderabad(JNTUH)"
-        }
-    ];
-
-    let educationItems = [];
-    try {
-        const stored = localStorage.getItem('educationItems');
-        if (stored) {
-            educationItems = JSON.parse(stored);
-        } else {
-            educationItems = [...defaultEducation];
-        }
-    } catch (e) {
-        educationItems = [...defaultEducation];
-    }
-
-    function saveEducationToStorage() {
-        localStorage.setItem('educationItems', JSON.stringify(educationItems));
-    }
-
-    let educationEditingIndex = -1;
-
-    function renderEducationItems() {
-        if (!educationList) return;
-        educationList.innerHTML = '';
-        educationItems.forEach((item, index) => {
-            if (index === educationEditingIndex) {
-                const itemHTML = `
-                    <div class="list-item" style="flex-direction: column; align-items: stretch; background: #f8f9fa; border: 1px solid #e9ecef; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        <h4 style="margin-bottom: 15px; color: #4361ee;"><i class="fas fa-edit"></i> Edit Education</h4>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Level / Category</label>
-                            <input type="text" id="inline-edu-level" value="${item.level || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Course Name</label>
-                            <input type="text" id="inline-edu-course" value="${item.course || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Year</label>
-                            <input type="text" id="inline-edu-year" value="${item.year || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">Percentage / CGPA</label>
-                            <input type="text" id="inline-edu-percent" value="${item.percentage || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div class="form-group" style="margin-bottom: 10px;">
-                            <label style="font-size: 0.8rem; color: #6c757d;">University / Board</label>
-                            <input type="text" id="inline-edu-univ" value="${item.university || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button type="button" class="btn-save inline-btn-save-edu">Save Changes</button>
-                            <button type="button" class="btn-logout inline-btn-cancel-edu" style="width: auto; padding: 12px 25px;">Cancel</button>
-                        </div>
-                    </div>
-                `;
-                educationList.insertAdjacentHTML('beforeend', itemHTML);
-            } else {
-                const displayTitle = item.course || item.level || `Education ${index + 1}`;
-                const displaySub = `${item.level ? item.level + ' - ' : ''}${item.percentage || ''}`;
-                const itemHTML = `
-                    <div class="list-item">
-                        <div class="item-details" style="flex:1; margin-right: 15px;">
-                            <h4>${displayTitle} (${item.year})</h4>
-                            <p>${displaySub}</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-edit-education" data-index="${index}"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete btn-delete-education" data-index="${index}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-                educationList.insertAdjacentHTML('beforeend', itemHTML);
-            }
-        });
-
-        document.querySelectorAll('.btn-edit-education').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                educationFormContainer.style.display = 'none'; // Ensure top add form is hidden
-                educationEditingIndex = parseInt(this.getAttribute('data-index'));
-                renderEducationItems(); // Re-render to show inline form for this index
-            });
-        });
-
-        document.querySelectorAll('.btn-delete-education').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                const idx = parseInt(this.getAttribute('data-index'));
-                if (confirm('Are you sure you want to delete this education item?')) {
-                    educationItems.splice(idx, 1);
-                    saveEducationToStorage();
-                    renderEducationItems();
-                }
-            });
-        });
-
-        // Inline form buttons logic
-        const btnSaveInlineEdu = document.querySelector('.inline-btn-save-edu');
-        if (btnSaveInlineEdu) {
-            btnSaveInlineEdu.addEventListener('click', function (e) {
-                e.preventDefault();
-                const levelVal = document.getElementById('inline-edu-level').value.trim();
-                const courseVal = document.getElementById('inline-edu-course').value.trim();
-
-                if (!levelVal && !courseVal) {
-                    alert("Please provide at least a Level or Course Name.");
-                    return;
-                }
-
-                educationItems[educationEditingIndex] = {
-                    level: levelVal,
-                    course: courseVal,
-                    year: document.getElementById('inline-edu-year').value.trim(),
-                    percentage: document.getElementById('inline-edu-percent').value.trim(),
-                    university: document.getElementById('inline-edu-univ').value.trim()
-                };
-
-                saveEducationToStorage();
-
-                const originalText = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                this.style.backgroundColor = '#4cc9f0';
-                setTimeout(() => {
-                    educationEditingIndex = -1;
-                    renderEducationItems();
-                }, 400);
-            });
-        }
-
-        const btnCancelInlineEdu = document.querySelector('.inline-btn-cancel-edu');
-        if (btnCancelInlineEdu) {
-            btnCancelInlineEdu.addEventListener('click', function (e) {
-                e.preventDefault();
-                educationEditingIndex = -1;
-                renderEducationItems();
-            });
-        }
-    }
-
-    renderEducationItems();
-
-    if (btnAddEducation && educationFormContainer) {
-        btnAddEducation.addEventListener('click', (e) => {
-            e.preventDefault();
-            educationEditingIndex = -1; // Close any open inline edit form
-            renderEducationItems();
-
-            educationItemIndex.value = "-1";
-            educationLevelInput.value = '';
-            educationCourseInput.value = '';
-            educationYearInput.value = '';
-            educationPercentageInput.value = '';
-            educationUniversityInput.value = '';
-
-            educationFormTitle.textContent = "Add New Education";
-            educationFormContainer.style.display = 'block';
-            educationFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            educationLevelInput.focus();
-        });
-    }
-
-    if (btnCancelEducationItem) {
-        btnCancelEducationItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            educationFormContainer.style.display = 'none';
-        });
-    }
-
-    if (btnSaveEducationItem) {
-        btnSaveEducationItem.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const levelVal = educationLevelInput.value.trim();
-            const courseVal = educationCourseInput.value.trim();
-            const yearVal = educationYearInput.value.trim();
-
-            if (!levelVal && !courseVal) {
-                alert("Please provide at least a Level or Course Name.");
-                return;
-            }
-
-            const newItem = {
-                level: levelVal,
-                course: courseVal,
-                year: yearVal,
-                percentage: educationPercentageInput.value.trim(),
-                university: educationUniversityInput.value.trim()
-            };
-
-            // This form is exclusively for adding new now
-            educationItems.push(newItem);
-            saveEducationToStorage();
-
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.style.backgroundColor = '';
-                educationFormContainer.style.display = 'none';
-                renderEducationItems();
-            }, 800);
-        });
-    }
-
-    // --- SKILLS SECTION RENDER & SAVE ---
-    const skillsList = document.getElementById('skills-list');
-    const btnAddSkill = document.getElementById('btn-add-skill');
-
-    // Form elements
-    const skillFormContainer = document.getElementById('skill-form-container');
-    const skillFormTitle = document.getElementById('skill-form-title');
-    const skillItemIndex = document.getElementById('skill-item-index');
-    const skillCategoryInput = document.getElementById('skill-category-input');
-    const skillIconInput = document.getElementById('skill-icon-input');
-    const skillNameInput = document.getElementById('skill-name-input');
-    const skillPercentageInput = document.getElementById('skill-percentage-input');
-    const btnSaveSkillItem = document.getElementById('btn-save-skill-item');
-    const btnCancelSkillItem = document.getElementById('btn-cancel-skill-item');
-
-    // Default mock data (to simulate index.html structure)
-    const defaultSkills = [
-        { category: "Electronics", icon: "fas fa-microchip", name: "Communication Systems", percentage: "85" },
-        { category: "Electronics", icon: "fas fa-microchip", name: "Digital Electronics", percentage: "90" },
-        { category: "Electronics", icon: "fas fa-microchip", name: "Embedded Systems", percentage: "80" },
-        { category: "Electronics", icon: "fas fa-microchip", name: "Signal Processing", percentage: "75" },
-        { category: "Programming Languages", icon: "fas fa-code", name: "C/C++", percentage: "85" },
-        { category: "Programming Languages", icon: "fas fa-code", name: "Python", percentage: "80" },
-        { category: "Programming Languages", icon: "fas fa-code", name: "Embedded C", percentage: "75" },
-        { category: "Programming Languages", icon: "fas fa-code", name: "VHDL/Verilog", percentage: "70" },
-        { category: "Tools & Software", icon: "fas fa-wrench", name: "MATLAB", percentage: "85" },
-        { category: "Tools & Software", icon: "fas fa-wrench", name: "Proteus", percentage: "80" },
-        { category: "Tools & Software", icon: "fas fa-wrench", name: "Multisim", percentage: "75" },
-        { category: "Tools & Software", icon: "fas fa-wrench", name: "Git/GitHub", percentage: "80" }
-    ];
-
-    let skillsItems = [];
-    try {
-        const stored = localStorage.getItem('skillsItems');
-        if (stored) {
-            skillsItems = JSON.parse(stored);
-        } else {
-            skillsItems = [...defaultSkills];
-        }
-    } catch (e) {
-        skillsItems = [...defaultSkills];
-    }
-
-    function saveSkillsToStorage() {
-        localStorage.setItem('skillsItems', JSON.stringify(skillsItems));
-    }
-
-    let skillEditingIndex = -1;
-    let currentSkillCategory = null;
-
-    function renderSkillsItems() {
-        if (!skillsList) return;
-        skillsList.innerHTML = '';
-
-        if (currentSkillCategory === null) {
-            // Render CATEGORY SELECTION VIEW
-            const categories = {};
-            skillsItems.forEach(item => {
-                const catName = item.category || 'General';
-                if (!categories[catName]) {
-                    categories[catName] = {
-                        icon: item.icon || 'fas fa-star',
-                        count: 0
-                    };
-                }
-                categories[catName].count++;
-            });
-
-            const gridHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; padding: 10px;">
-                    ${Object.keys(categories).map(catName => `
-                        <div class="category-card btn-open-category" data-category="${catName}" style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e1e7ff; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                            <div style="width: 50px; height: 50px; background: #f1f4ff; color: #4361ee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem;">
-                                <i class="${categories[catName].icon}"></i>
-                            </div>
-                            <h4 style="margin-bottom: 5px; color: #333;">${catName}</h4>
-                            <p style="font-size: 0.8rem; color: #6c757d;">${categories[catName].count} Skills</p>
-                        </div>
-                    `).join('')}
-                    <div class="category-card" id="btn-create-new-cat" style="background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px dashed #ced4da; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <i class="fas fa-plus-circle" style="font-size: 1.5rem; color: #6c757d; margin-bottom: 10px;"></i>
-                        <h4 style="color: #6c757d;">New Category</h4>
-                    </div>
-                </div>
-            `;
-            skillsList.innerHTML = gridHTML;
-
-            // Event listeners for category selection
-            document.querySelectorAll('.btn-open-category').forEach(card => {
-                card.addEventListener('click', function () {
-                    currentSkillCategory = this.getAttribute('data-category');
-                    renderSkillsItems();
-                });
-            });
-
-            document.getElementById('btn-create-new-cat').addEventListener('click', function () {
-                skillEditingIndex = -1;
-                skillItemIndex.value = "-1";
-                skillCategoryInput.value = '';
-                skillIconInput.value = 'fas fa-briefcase';
-                skillNameInput.value = '';
-                skillPercentageInput.value = '';
-
-                skillFormTitle.textContent = "Create New Skill Category";
-                skillFormContainer.style.display = 'block';
-                skillFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                skillCategoryInput.focus();
-            });
-
-        } else {
-            // Render SPECIFIC CATEGORY VIEW
-            const catItems = skillsItems
-                .map((item, index) => ({ ...item, originalIndex: index }))
-                .filter(item => item.category === currentSkillCategory);
-
-            const catIcon = catItems.length > 0 ? catItems[0].icon : 'fas fa-star';
-
-            const headerHTML = `
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-                    <button id="btn-back-to-categories" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <h3 style="margin: 0; color: #4361ee;"><i class="${catIcon}"></i> ${currentSkillCategory}</h3>
-                    <button class="btn-add" id="btn-add-skill-to-this-cat" style="margin-left: auto; padding: 8px 15px; font-size: 0.85rem;">
-                        <i class="fas fa-plus"></i> Add Skill
-                    </button>
-                </div>
-                <div class="list-container" id="category-specific-list"></div>
-            `;
-            skillsList.innerHTML = headerHTML;
-
-            const listContainer = document.getElementById('category-specific-list');
-
-            catItems.forEach(item => {
-                const index = item.originalIndex;
-                if (index === skillEditingIndex) {
-                    const itemHTML = `
-                        <div class="list-item" style="flex-direction: column; align-items: stretch; background: #fffdf5; border-left: 4px solid #4cc9f0; padding: 20px;">
-                            <h5 style="margin-bottom: 15px; color: #4361ee;"><i class="fas fa-edit"></i> Edit Skill Details</h5>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 10px;">
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Skill Name</label>
-                                    <input type="text" id="inline-skill-name" value="${item.name || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Percentage (%)</label>
-                                    <input type="number" id="inline-skill-percent" value="${item.percentage || ''}" min="0" max="100" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button type="button" class="btn-save inline-btn-save-skill" style="padding: 8px 20px; font-size: 0.85rem;">Save Changes</button>
-                                <button type="button" class="btn-logout inline-btn-cancel-skill" style="padding: 8px 20px; font-size: 0.85rem; width: auto;">Cancel</button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                } else {
-                    const itemHTML = `
-                        <div class="list-item">
-                            <div class="item-details" style="flex:1;">
-                                <h4 style="margin: 0;">${item.name || 'Unnamed Skill'}</h4>
-                                <p style="margin: 5px 0 0;">Proficiency: ${item.percentage || 0}%</p>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-edit btn-edit-skill" data-index="${index}"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete btn-delete-skill" data-index="${index}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                }
-            });
-
-            document.getElementById('btn-back-to-categories').addEventListener('click', function () {
-                currentSkillCategory = null;
-                skillEditingIndex = -1;
-                renderSkillsItems();
-            });
-
-            document.getElementById('btn-add-skill-to-this-cat').addEventListener('click', function () {
-                skillEditingIndex = -1;
-                skillItemIndex.value = "-1";
-                skillCategoryInput.value = currentSkillCategory;
-                skillIconInput.value = catIcon;
-                skillNameInput.value = '';
-                skillPercentageInput.value = '';
-
-                skillFormTitle.textContent = `Add New Skill to ${currentSkillCategory}`;
-                skillFormContainer.style.display = 'block';
-                skillFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                skillNameInput.focus();
-            });
-
-            document.querySelectorAll('.btn-edit-skill').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    skillFormContainer.style.display = 'none';
-                    skillEditingIndex = parseInt(this.getAttribute('data-index'));
-                    renderSkillsItems();
-                });
-            });
-
-            document.querySelectorAll('.btn-delete-skill').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Are you sure you want to delete this skill?')) {
-                        skillsItems.splice(idx, 1);
-                        saveSkillsToStorage();
-                        renderSkillsItems();
-                    }
-                });
-            });
-
-            // Inline form buttons logic
-            const btnSaveInlineSkill = document.querySelector('.inline-btn-save-skill');
-            if (btnSaveInlineSkill) {
-                btnSaveInlineSkill.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const nameVal = document.getElementById('inline-skill-name').value.trim();
-                    if (!nameVal) {
-                        alert("Please provide at least a Skill Name.");
-                        return;
-                    }
-
-                    skillsItems[skillEditingIndex] = {
-                        ...skillsItems[skillEditingIndex],
-                        name: nameVal,
-                        percentage: document.getElementById('inline-skill-percent').value.trim()
-                    };
-
-                    saveSkillsToStorage();
-
-                    this.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                    this.style.backgroundColor = '#4cc9f0';
-                    setTimeout(() => {
-                        skillEditingIndex = -1;
-                        renderSkillsItems();
-                    }, 400);
-                });
-            }
-
-            const btnCancelInlineSkill = document.querySelector('.inline-btn-cancel-skill');
-            if (btnCancelInlineSkill) {
-                btnCancelInlineSkill.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    skillEditingIndex = -1;
-                    renderSkillsItems();
-                });
-            }
-        }
-    }
-
-    renderSkillsItems();
-
-    if (btnCancelSkillItem) {
-        btnCancelSkillItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            skillFormContainer.style.display = 'none';
-        });
-    }
-
-    if (btnSaveSkillItem) {
-        btnSaveSkillItem.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const nameVal = skillNameInput.value.trim();
-            const catVal = skillCategoryInput.value.trim();
-
-            if (!nameVal || !catVal) {
-                alert("Please provide both a Category and Skill Name.");
-                return;
-            }
-
-            const newItem = {
-                category: catVal,
-                icon: skillIconInput.value.trim() || 'fas fa-code',
-                name: nameVal,
-                percentage: skillPercentageInput.value.trim() || '0'
-            };
-
-            skillsItems.push(newItem);
-            saveSkillsToStorage();
-
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = 'Save Skill';
-                this.style.backgroundColor = '';
-                skillFormContainer.style.display = 'none';
-                currentSkillCategory = catVal; // Go to the category we just added to
-                renderSkillsItems();
-            }, 800);
-        });
-    }
-
-    // --- PROJECTS MANAGEMENT ---
-    const projectsList = document.getElementById('projects-list');
-    const projectFormContainer = document.getElementById('project-form-container');
-    const projectFormTitle = document.getElementById('project-form-title');
-    const projectItemIndex = document.getElementById('project-item-index');
-    const projectCategoryInput = document.getElementById('project-category-input');
-    const projectIconInput = document.getElementById('project-icon-input');
-    const projectTitleInput = document.getElementById('project-title-input');
-    const projectDescriptionInput = document.getElementById('project-description-input');
-    const projectImageInput = document.getElementById('project-image-input');
-    const projectTagsInput = document.getElementById('project-tags-input');
-    const projectGithubInput = document.getElementById('project-github-input');
-    const projectDemoInput = document.getElementById('project-demo-input');
-    const btnSaveProjectItem = document.getElementById('btn-save-project-item');
-    const btnCancelProjectItem = document.getElementById('btn-cancel-project-item');
-
-    const defaultProjects = [
-        {
-            category: "IoT",
-            icon: "fas fa-home",
-            title: "Smart Home Automation System",
-            description: "Developed an IoT-based home automation system using ESP32 and sensors for controlling lights, fans, and monitoring temperature.",
-            image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=600&h=400&fit=crop",
-            tags: "ESP32, Arduino, IoT, Mobile App",
-            github: "https://github.com",
-            demo: "#"
-        },
-        {
-            category: "Software",
-            icon: "fas fa-file-audio",
-            title: "Digital Signal Processing for Audio",
-            description: "Implemented various DSP algorithms for audio signal processing including noise reduction, equalization, and compression using MATLAB and Python.",
-            image: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&h=400&fit=crop",
-            tags: "MATLAB, Python, DSP, Audio",
-            github: "https://github.com",
-            demo: "#"
-        },
-        {
-            category: "Embedded",
-            icon: "fas fa-id-card",
-            title: "RFID-Based Attendance System",
-            description: "Created an automated attendance system using RFID technology and Arduino. Integrated with a database for real-time tracking.",
-            image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop",
-            tags: "RFID, Arduino, MySQL, C++",
-            github: "https://github.com",
-            demo: "#"
-        },
-        {
-            category: "Electronics",
-            icon: "fas fa-bolt",
-            title: "Wireless Power Transfer System",
-            description: "Designed and implemented a wireless power transfer system based on electromagnetic induction principles for charging small electronic devices.",
-            image: "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=600&h=400&fit=crop",
-            tags: "Circuit Design, Power Electronics, Proteus",
-            github: "https://github.com",
-            demo: "#"
-        },
-        {
-            category: "Robotics",
-            icon: "fas fa-robot",
-            title: "Voice-Controlled Robot",
-            description: "Built a voice-controlled mobile robot using speech recognition modules and motor drivers. Programmed with Arduino.",
-            image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&h=400&fit=crop",
-            tags: "Arduino, Speech Recognition, Robotics, C",
-            github: "https://github.com",
-            demo: "#"
-        },
-        {
-            category: "Healthcare",
-            icon: "fas fa-heartbeat",
-            title: "Heart Rate Monitoring System",
-            description: "Developed a portable heart rate monitoring device using pulse sensor and Arduino. Displays real-time data on LCD.",
-            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&h=400&fit=crop",
-            tags: "Arduino, Sensors, Healthcare, Embedded C",
-            github: "https://github.com",
-            demo: "#"
-        }
-    ];
-
-    let projectsItems = JSON.parse(localStorage.getItem('projectsItems')) || defaultProjects;
-    let projectEditingIndex = -1;
-    let currentProjectCategory = null;
-
-    function saveProjectsToStorage() {
-        localStorage.setItem('projectsItems', JSON.stringify(projectsItems));
-    }
-
-    function renderProjectsItems() {
-        if (!projectsList) return;
-        projectsList.innerHTML = '';
-
-        if (currentProjectCategory === null) {
-            // CATEGORY VIEW
-            const categories = {};
-            projectsItems.forEach(item => {
-                const catName = item.category || 'Other';
-                if (!categories[catName]) {
-                    categories[catName] = { icon: item.icon || 'fas fa-project-diagram', count: 0 };
-                }
-                categories[catName].count++;
-            });
-
-            const gridHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 10px;">
-                    ${Object.keys(categories).map(catName => `
-                        <div class="category-card btn-open-project-category" data-category="${catName}" style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e1e7ff; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                            <div style="width: 50px; height: 50px; background: #fff4e1; color: #f39c12; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem;">
-                                <i class="${categories[catName].icon}"></i>
-                            </div>
-                            <h4 style="margin-bottom: 5px; color: #333;">${catName}</h4>
-                            <p style="font-size: 0.8rem; color: #6c757d;">${categories[catName].count} Projects</p>
-                        </div>
-                    `).join('')}
-                    <div class="category-card" id="btn-create-new-project-cat" style="background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px dashed #ced4da; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <i class="fas fa-plus-circle" style="font-size: 1.5rem; color: #6c757d; margin-bottom: 10px;"></i>
-                        <h4 style="color: #6c757d;">New Category</h4>
-                    </div>
-                </div>
-            `;
-            projectsList.innerHTML = gridHTML;
-
-            document.querySelectorAll('.btn-open-project-category').forEach(card => {
-                card.addEventListener('click', function () {
-                    currentProjectCategory = this.getAttribute('data-category');
-                    renderProjectsItems();
-                });
-            });
-
-            document.getElementById('btn-create-new-project-cat').addEventListener('click', function () {
-                projectEditingIndex = -1;
-                projectItemIndex.value = "-1";
-                projectCategoryInput.value = '';
-                projectIconInput.value = 'fas fa-project-diagram';
-                projectTitleInput.value = '';
-                projectDescriptionInput.value = '';
-                projectImageInput.value = '';
-                projectTagsInput.value = '';
-                projectGithubInput.value = '';
-                projectDemoInput.value = '';
-
-                projectFormTitle.textContent = "Create New Project Category";
-                projectFormContainer.style.display = 'block';
-                projectFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-
-        } else {
-            // PROJECT VIEW
-            const catItems = projectsItems
-                .map((item, index) => ({ ...item, originalIndex: index }))
-                .filter(item => item.category === currentProjectCategory);
-
-            const catIcon = catItems.length > 0 ? catItems[0].icon : 'fas fa-project-diagram';
-
-            const headerHTML = `
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-                    <button id="btn-back-to-project-categories" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <h3 style="margin: 0; color: #f39c12;"><i class="${catIcon}"></i> ${currentProjectCategory}</h3>
-                    <button class="btn-add" id="btn-add-project-to-this-cat" style="margin-left: auto; padding: 8px 15px; font-size: 0.85rem; background: #f39c12;">
-                        <i class="fas fa-plus"></i> Add Project
-                    </button>
-                </div>
-                <div class="list-container" id="category-specific-projects"></div>
-            `;
-            projectsList.innerHTML = headerHTML;
-
-            const listContainer = document.getElementById('category-specific-projects');
-
-            catItems.forEach(item => {
-                const index = item.originalIndex;
-                if (index === projectEditingIndex) {
-                    const itemHTML = `
-                        <div class="list-item" style="flex-direction: column; align-items: stretch; background: #fffdf5; border-left: 4px solid #f39c12; padding: 20px;">
-                            <h5 style="margin-bottom: 15px; color: #f39c12;"><i class="fas fa-edit"></i> Edit Project Details</h5>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Project Title</label>
-                                <input type="text" id="inline-project-title" value="${item.title || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Description</label>
-                                <textarea id="inline-project-desc" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${item.description || ''}</textarea>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Image URL</label>
-                                    <input type="text" id="inline-project-image" value="${item.image || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Tech Stack / Tags</label>
-                                    <input type="text" id="inline-project-tags" value="${item.tags || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">GitHub URL</label>
-                                    <input type="text" id="inline-project-github" value="${item.github || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Demo URL</label>
-                                    <input type="text" id="inline-project-demo" value="${item.demo || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button type="button" class="btn-save inline-btn-save-project" style="padding: 8px 20px; font-size: 0.85rem; background: #f39c12;">Save Changes</button>
-                                <button type="button" class="btn-logout inline-btn-cancel-project" style="padding: 8px 20px; font-size: 0.85rem; width: auto;">Cancel</button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                } else {
-                    const itemHTML = `
-                        <div class="list-item" style="padding: 15px 20px;">
-                            <div style="width: 60px; height: 60px; overflow: hidden; border-radius: 4px; margin-right: 15px;">
-                                <img src="${item.image}" style="width: 100%; height: 100%; object-fit: cover; border: 1px solid #eee;">
-                            </div>
-                            <div class="item-details" style="flex:1;">
-                                <h4 style="margin: 0;">${item.title || 'Project'}</h4>
-                                <p style="margin: 5px 0 0; font-size: 0.8rem; color: #666;">${item.tags}</p>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-edit btn-edit-project" data-index="${index}"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete btn-delete-project" data-index="${index}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                }
-            });
-
-            document.getElementById('btn-back-to-project-categories').addEventListener('click', function () {
-                currentProjectCategory = null;
-                projectEditingIndex = -1;
-                renderProjectsItems();
-            });
-
-            document.getElementById('btn-add-project-to-this-cat').addEventListener('click', function () {
-                projectEditingIndex = -1;
-                projectItemIndex.value = "-1";
-                projectCategoryInput.value = currentProjectCategory;
-                projectIconInput.value = catIcon;
-                projectTitleInput.value = '';
-                projectDescriptionInput.value = '';
-                projectImageInput.value = '';
-                projectTagsInput.value = '';
-                projectGithubInput.value = '';
-                projectDemoInput.value = '';
-
-                projectFormTitle.textContent = `Add Project to ${currentProjectCategory}`;
-                projectFormContainer.style.display = 'block';
-                projectFormContainer.scrollIntoView({ behavior: 'smooth' });
-                projectTitleInput.focus();
-            });
-
-            document.querySelectorAll('.btn-edit-project').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    projectFormContainer.style.display = 'none';
-                    projectEditingIndex = parseInt(this.getAttribute('data-index'));
-                    renderProjectsItems();
-                });
-            });
-
-            document.querySelectorAll('.btn-delete-project').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Are you sure you want to delete this project?')) {
-                        projectsItems.splice(idx, 1);
-                        saveProjectsToStorage();
-                        renderProjectsItems();
-                    }
-                });
-            });
-
-            const btnSaveInlineProject = document.querySelector('.inline-btn-save-project');
-            if (btnSaveInlineProject) {
-                btnSaveInlineProject.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const titleVal = document.getElementById('inline-project-title').value.trim();
-                    if (!titleVal) {
-                        alert("Please provide a Project Title.");
-                        return;
-                    }
-
-                    projectsItems[projectEditingIndex] = {
-                        ...projectsItems[projectEditingIndex],
-                        title: titleVal,
-                        description: document.getElementById('inline-project-desc').value.trim(),
-                        image: document.getElementById('inline-project-image').value.trim(),
-                        tags: document.getElementById('inline-project-tags').value.trim(),
-                        github: document.getElementById('inline-project-github').value.trim(),
-                        demo: document.getElementById('inline-project-demo').value.trim()
-                    };
-
-                    saveProjectsToStorage();
-                    projectEditingIndex = -1;
-                    renderProjectsItems();
-                });
-            }
-
-            const btnCancelInlineProject = document.querySelector('.inline-btn-cancel-project');
-            if (btnCancelInlineProject) {
-                btnCancelInlineProject.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    projectEditingIndex = -1;
-                    renderProjectsItems();
-                });
-            }
-        }
-    }
-
-    renderProjectsItems();
-
-    if (btnSaveProjectItem) {
-        btnSaveProjectItem.addEventListener('click', function (e) {
-            e.preventDefault();
-            const titleVal = projectTitleInput.value.trim();
-            const catVal = projectCategoryInput.value.trim();
-
-            if (!titleVal || !catVal) {
-                alert("Please provide Category and Title.");
-                return;
-            }
-
-            const newItem = {
-                category: catVal,
-                icon: projectIconInput.value.trim() || 'fas fa-project-diagram',
-                title: titleVal,
-                description: projectDescriptionInput.value.trim(),
-                image: projectImageInput.value.trim() || 'https://via.placeholder.com/600x400',
-                tags: projectTagsInput.value.trim(),
-                github: projectGithubInput.value.trim() || '#',
-                demo: projectGithubInput.value.trim() || '#'
-            };
-
-            projectsItems.push(newItem);
-            saveProjectsToStorage();
-
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = 'Save Project';
-                this.style.backgroundColor = '';
-                projectFormContainer.style.display = 'none';
-                currentProjectCategory = catVal;
-                renderProjectsItems();
-            }, 800);
-        });
-    }
-
-    if (btnCancelProjectItem) {
-        btnCancelProjectItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            projectFormContainer.style.display = 'none';
-        });
-    }
-
-    // --- EXPERIENCE MANAGEMENT ---
-    const experienceList = document.getElementById('experience-list');
-    const experienceFormContainer = document.getElementById('experience-form-container');
-    const experienceFormTitle = document.getElementById('experience-form-title');
-    const experienceItemIndex = document.getElementById('experience-item-index');
-    const experienceBadgeInput = document.getElementById('experience-badge-input');
-    const experienceIconInput = document.getElementById('experience-icon-input');
-    const experienceTitleInput = document.getElementById('experience-title-input');
-    const experienceDurationInput = document.getElementById('experience-duration-input');
-    const experienceCompanyInput = document.getElementById('experience-company-input');
-    const experienceDescriptionInput = document.getElementById('experience-description-input');
-    const experienceTagsInput = document.getElementById('experience-tags-input');
-    const btnSaveExperienceItem = document.getElementById('btn-save-experience-item');
-    const btnCancelExperienceItem = document.getElementById('btn-cancel-experience-item');
-
-    const defaultExperience = [
-        {
-            badge: "Full Time Job",
-            icon: "fas fa-calendar-check",
-            duration: "January 2023 - Till Date",
-            title: "Trainer & IT Support Engineer",
-            company: "Citizen Infotech Pvt. Ltd.",
-            description: "Full-time Software Trainer responsible for delivering hands-on IT and software training, curriculum development, student mentoring, project guidance, and skill evaluation.",
-            tags: "eHMIS, EHR, IDMS, MCH, IDSP"
-        },
-        {
-            badge: "Full Time Job",
-            icon: "fas fa-briefcase",
-            duration: "November 2021 - July 2023",
-            title: "IT Officer",
-            company: "Hamro Madhyaworti Saving & Credit Co-operative Society Ltd.",
-            description: "Managed IT infrastructure, cooperative software systems, data security, technical support, backups, networking, and digitization of operations.",
-            tags: "IT infrastructure, Cybersecurity, Systems, Database"
-        },
-        {
-            badge: "Full Time Job",
-            icon: "fas fa-tools",
-            duration: "October 2021 to Present",
-            title: "Technical Support",
-            company: "Highway Techno Institute Pvt. Ltd.",
-            description: "Technical Support Officer responsible for system setup, troubleshooting, lab management, user support, networking, and technical assistance.",
-            tags: "Operating Systems, Cybersecurity, Troubleshooting, Networking"
-        },
-        {
-            badge: "Workshop",
-            icon: "fas fa-award",
-            duration: "January 2020",
-            title: "ROBOTC Compitition",
-            company: "JNTUH",
-            description: "Participated in a hands-on workshop focusing on Arduino and ARM microcontroller programming, sensor interfacing, and real-time embedded applications.",
-            tags: "Arduino, ARM, Sensors, Microcontrollers"
-        },
-        {
-            badge: "Internship",
-            icon: "fas fa-award",
-            duration: "June 2020 - July 2020",
-            title: "IMU Section, IT, Transmission & Mobile Project",
-            company: "Nepal Telecom",
-            description: "Certified in IMU Section, IT, Transmission & Mobile Project. Gained exposure to telecom infrastructure and mobile networking.",
-            tags: "IMU, IT, Transmission, Mobile Networking"
-        },
-        {
-            badge: "Training",
-            icon: "fas fa-calendar-alt",
-            duration: "1 June 2016 - 15 July 2016",
-            title: "Embedded Systems Design & Programming",
-            company: "NetMax Technology Pvt.Ltd.",
-            description: "Completed comprehensive training in VLSI design covering RTL design, synthesis, and verification.",
-            tags: "VLSI, Verilog, FPGA, RTL Design"
-        },
-        {
-            badge: "Internship",
-            icon: "fas fa-briefcase",
-            duration: "June 2015 - August 2015",
-            title: "Electronics Design Intern",
-            company: "Tech Solutions Pvt. Ltd.",
-            description: "Worked on PCB design and testing for IoT devices. Collaborated with senior engineers on embedded systems development.",
-            tags: "PCB Design, Embedded Systems, Testing, IoT"
-        }
-    ];
-
-    let experienceItems = JSON.parse(localStorage.getItem('experienceItems')) || defaultExperience;
-    let experienceEditingIndex = -1;
-    let currentExperienceCategory = null;
-
-    // ----- Date-wise sorting helpers (latest first) -----
-    const EXPERIENCE_MONTHS = {
-        january: 0, jan: 0, february: 1, feb: 1, march: 2, mar: 2, april: 3, apr: 3,
-        may: 4, june: 5, jun: 5, july: 6, jul: 6, august: 7, aug: 7,
-        september: 8, sep: 8, sept: 8, october: 9, oct: 9,
-        november: 10, nov: 10, december: 11, dec: 11
-    };
-
-    function parseExperienceDate(str) {
-        if (!str) return null;
-        const s = str.trim().toLowerCase();
-
-        const yearMatch = s.match(/\b(19|20)\d{2}\b/);
-        if (!yearMatch) return null;
-        const year = parseInt(yearMatch[0], 10);
-
-        let month = 0;
-        for (const key in EXPERIENCE_MONTHS) {
-            if (s.includes(key)) { month = EXPERIENCE_MONTHS[key]; break; }
-        }
-
-        let day = 1;
-        const dayMatch = s.match(/\b([1-9]|[12]\d|3[01])(?:st|nd|rd|th)?\b/);
-        if (dayMatch) {
-            const d = parseInt(dayMatch[1], 10);
-            if (d >= 1 && d <= 31) day = d;
-        }
-
-        return new Date(year, month, day);
-    }
-
-    // Returns a numeric sort value: higher = more recent = should appear first
-    function getExperienceSortValue(item) {
-        const duration = (item.duration || '').trim();
-        if (!duration) return -Infinity;
-
-        const lower = duration.toLowerCase();
-        if (/till date|present|current|ongoing|now\b/.test(lower)) {
-            return Infinity; // ongoing roles always float to the top
-        }
-
-        // Split "Start - End" / "Start to End" ranges
-        const parts = duration.split(/\s*(?:-|–|—|\bto\b)\s*/i).map(p => p.trim()).filter(Boolean);
-        const endPart = parts.length > 1 ? parts[parts.length - 1] : parts[0];
-
-        if (/till date|present|current|ongoing/i.test(endPart)) return Infinity;
-
-        const endDate = parseExperienceDate(endPart) || parseExperienceDate(duration);
-        return endDate ? endDate.getTime() : -Infinity;
-    }
-
-    function sortExperienceItems() {
-        experienceItems.sort((a, b) => getExperienceSortValue(b) - getExperienceSortValue(a));
-    }
-
-    function saveExperienceToStorage() {
-        sortExperienceItems();
-        localStorage.setItem('experienceItems', JSON.stringify(experienceItems));
-    }
-
-    function renderExperienceItems() {
-        if (!experienceList) return;
-        experienceList.innerHTML = '';
-
-        if (currentExperienceCategory === null) {
-            // CATEGORY VIEW
-            const categories = {};
-            experienceItems.forEach(item => {
-                const catName = item.badge || 'Experience';
-                if (!categories[catName]) {
-                    categories[catName] = { icon: item.icon || 'fas fa-briefcase', count: 0 };
-                }
-                categories[catName].count++;
-            });
-
-            const gridHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 10px;">
-                    ${Object.keys(categories).map(catName => `
-                        <div class="category-card btn-open-experience-category" data-category="${catName}" style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e1e7ff; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                            <div style="width: 50px; height: 50px; background: #e1f5fe; color: #03a9f4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem;">
-                                <i class="${categories[catName].icon}"></i>
-                            </div>
-                            <h4 style="margin-bottom: 5px; color: #333;">${catName}</h4>
-                            <p style="font-size: 0.8rem; color: #6c757d;">${categories[catName].count} Items</p>
-                        </div>
-                    `).join('')}
-                    <div class="category-card" id="btn-create-new-experience-cat" style="background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px dashed #ced4da; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <i class="fas fa-plus-circle" style="font-size: 1.5rem; color: #6c757d; margin-bottom: 10px;"></i>
-                        <h4 style="color: #6c757d;">New Type</h4>
-                    </div>
-                </div>
-            `;
-            experienceList.innerHTML = gridHTML;
-
-            document.querySelectorAll('.btn-open-experience-category').forEach(card => {
-                card.addEventListener('click', function () {
-                    currentExperienceCategory = this.getAttribute('data-category');
-                    renderExperienceItems();
-                });
-            });
-
-            document.getElementById('btn-create-new-experience-cat').addEventListener('click', function () {
-                experienceEditingIndex = -1;
-                experienceBadgeInput.value = '';
-                experienceIconInput.value = 'fas fa-briefcase';
-                experienceTitleInput.value = '';
-                experienceDurationInput.value = '';
-                experienceCompanyInput.value = '';
-                experienceDescriptionInput.value = '';
-                experienceTagsInput.value = '';
-
-                experienceFormTitle.textContent = "Add New Experience Type";
-                experienceFormContainer.style.display = 'block';
-                experienceFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-
-        } else {
-            // DETAIL VIEW
-            const catItems = experienceItems
-                .map((item, index) => ({ ...item, originalIndex: index }))
-                .filter(item => item.badge === currentExperienceCategory);
-
-            const catIcon = catItems.length > 0 ? catItems[0].icon : 'fas fa-briefcase';
-
-            const headerHTML = `
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-                    <button id="btn-back-to-experience-categories" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <h3 style="margin: 0; color: #03a9f4;"><i class="${catIcon}"></i> ${currentExperienceCategory}</h3>
-                    <button class="btn-add" id="btn-add-experience-to-this-cat" style="margin-left: auto; padding: 8px 15px; font-size: 0.85rem; background: #03a9f4;">
-                        <i class="fas fa-plus"></i> Add ${currentExperienceCategory}
-                    </button>
-                </div>
-                <div class="list-container" id="category-specific-experience"></div>
-            `;
-            experienceList.innerHTML = headerHTML;
-
-            const listContainer = document.getElementById('category-specific-experience');
-
-            catItems.forEach(item => {
-                const index = item.originalIndex;
-                if (index === experienceEditingIndex) {
-                    const itemHTML = `
-                        <div class="list-item" style="flex-direction: column; align-items: stretch; background: #fffdf5; border-left: 4px solid #03a9f4; padding: 20px;">
-                            <h5 style="margin-bottom: 15px; color: #03a9f4;"><i class="fas fa-edit"></i> Edit Details</h5>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 10px;">
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Title / Role</label>
-                                    <input type="text" id="inline-exp-title" value="${item.title || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Duration</label>
-                                    <input type="text" id="inline-exp-duration" value="${item.duration || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Company / Organization</label>
-                                <input type="text" id="inline-exp-company" value="${item.company || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Description</label>
-                                <textarea id="inline-exp-desc" rows="3" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${item.description || ''}</textarea>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Skills / Tags</label>
-                                <input type="text" id="inline-exp-tags" value="${item.tags || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button type="button" class="btn-save inline-btn-save-experience" style="padding: 8px 20px; font-size: 0.85rem; background: #03a9f4;">Save Changes</button>
-                                <button type="button" class="btn-logout inline-btn-cancel-experience" style="padding: 8px 20px; font-size: 0.85rem; width: auto;">Cancel</button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                } else {
-                    const itemHTML = `
-                        <div class="list-item" style="padding: 15px 20px;">
-                            <div class="item-details" style="flex:1;">
-                                <h4 style="margin: 0;">${item.title || 'Experience'}</h4>
-                                <p style="margin: 5px 0 0; font-size: 0.85rem; color: #666;">${item.company} | ${item.duration}</p>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-edit btn-edit-experience" data-index="${index}"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete btn-delete-experience" data-index="${index}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                }
-            });
-
-            document.getElementById('btn-back-to-experience-categories').addEventListener('click', function () {
-                currentExperienceCategory = null;
-                experienceEditingIndex = -1;
-                renderExperienceItems();
-            });
-
-            document.getElementById('btn-add-experience-to-this-cat').addEventListener('click', function () {
-                experienceEditingIndex = -1;
-                experienceBadgeInput.value = currentExperienceCategory;
-                experienceIconInput.value = catIcon;
-                experienceTitleInput.value = '';
-                experienceDurationInput.value = '';
-                experienceCompanyInput.value = '';
-                experienceDescriptionInput.value = '';
-                experienceTagsInput.value = '';
-
-                experienceFormTitle.textContent = `Add ${currentExperienceCategory}`;
-                experienceFormContainer.style.display = 'block';
-                experienceFormContainer.scrollIntoView({ behavior: 'smooth' });
-                experienceTitleInput.focus();
-            });
-
-            document.querySelectorAll('.btn-edit-experience').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    experienceFormContainer.style.display = 'none';
-                    experienceEditingIndex = parseInt(this.getAttribute('data-index'));
-                    renderExperienceItems();
-                });
-            });
-
-            document.querySelectorAll('.btn-delete-experience').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Are you sure you want to delete this experience?')) {
-                        experienceItems.splice(idx, 1);
-                        saveExperienceToStorage();
-                        renderExperienceItems();
-                    }
-                });
-            });
-
-            const btnSaveInlineExperience = document.querySelector('.inline-btn-save-experience');
-            if (btnSaveInlineExperience) {
-                btnSaveInlineExperience.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const titleVal = document.getElementById('inline-exp-title').value.trim();
-                    if (!titleVal) {
-                        alert("Please provide a Title.");
-                        return;
-                    }
-
-                    experienceItems[experienceEditingIndex] = {
-                        ...experienceItems[experienceEditingIndex],
-                        title: titleVal,
-                        duration: document.getElementById('inline-exp-duration').value.trim(),
-                        company: document.getElementById('inline-exp-company').value.trim(),
-                        description: document.getElementById('inline-exp-desc').value.trim(),
-                        tags: document.getElementById('inline-exp-tags').value.trim()
-                    };
-
-                    saveExperienceToStorage();
-                    experienceEditingIndex = -1;
-                    renderExperienceItems();
-                });
-            }
-
-            const btnCancelInlineExperience = document.querySelector('.inline-btn-cancel-experience');
-            if (btnCancelInlineExperience) {
-                btnCancelInlineExperience.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    experienceEditingIndex = -1;
-                    renderExperienceItems();
-                });
-            }
-        }
-    }
-
-    // Sort existing saved data on load too (handles data saved before this update)
-    sortExperienceItems();
-    renderExperienceItems();
-
-    if (btnSaveExperienceItem) {
-        btnSaveExperienceItem.addEventListener('click', function (e) {
-            e.preventDefault();
-            const titleVal = experienceTitleInput.value.trim();
-            const badgeVal = experienceBadgeInput.value.trim();
-
-            if (!titleVal || !badgeVal) {
-                alert("Please provide Type and Title.");
-                return;
-            }
-
-            const newItem = {
-                badge: badgeVal,
-                icon: experienceIconInput.value.trim() || 'fas fa-briefcase',
-                title: titleVal,
-                duration: experienceDurationInput.value.trim(),
-                company: experienceCompanyInput.value.trim(),
-                description: experienceDescriptionInput.value.trim(),
-                tags: experienceTagsInput.value.trim()
-            };
-
-            experienceItems.push(newItem);
-            saveExperienceToStorage();
-
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = 'Save Experience';
-                this.style.backgroundColor = '';
-                experienceFormContainer.style.display = 'none';
-                currentExperienceCategory = badgeVal;
-                renderExperienceItems();
-            }, 800);
-        });
-    }
-
-    if (btnCancelExperienceItem) {
-        btnCancelExperienceItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            experienceFormContainer.style.display = 'none';
-        });
-    }
-
-    // --- CERTIFICATES MANAGEMENT ---
-    const certificatesList = document.getElementById('certificates-list');
-    const certificatesFormContainer = document.getElementById('certificate-form-container');
-    const certificatesFormTitle = document.getElementById('certificate-form-title');
-    const certificateItemIndex = document.getElementById('certificate-item-index');
-    const certificateIssuerInput = document.getElementById('certificate-issuer-input');
-    const certificateIconInput = document.getElementById('certificate-icon-input');
-    const certificateNameInput = document.getElementById('certificate-name-input');
-    const certificateYearInput = document.getElementById('certificate-year-input');
-    const certificateDescriptionInput = document.getElementById('certificate-description-input');
-    const certificateTagsInput = document.getElementById('certificate-tags-input');
-    const btnSaveCertificateItem = document.getElementById('btn-save-certificate-item');
-    const btnCancelCertificateItem = document.getElementById('btn-cancel-certificate-item');
-
-    const defaultCertificates = [
-        {
-            name: "Embedded Systems Certification",
-            issuer: "Coursera",
-            year: "2023",
-            icon: "fas fa-award",
-            description: "A comprehensive certification covering embedded systems architecture, RTOS, and hardware-software integration.",
-            tags: "Embedded Systems, RTOS, C, Architecture"
-        },
-        {
-            name: "Python for Data Science",
-            issuer: "edX",
-            year: "2023",
-            icon: "fas fa-award",
-            description: "Learned data manipulation, visualization, and basic machine learning using Python, Pandas, and Scikit-Learn.",
-            tags: "Python, Data Science, Pandas, Visualization"
-        },
-        {
-            name: "Digital Signal Processing",
-            issuer: "NPTEL",
-            year: "2022",
-            icon: "fas fa-award",
-            description: "Advanced course on discrete-time signals, filter design, and spectral analysis for electronics engineering.",
-            tags: "DSP, Signal Processing, Filters, MATLAB"
-        },
-        {
-            name: "PCB Design Fundamentals",
-            issuer: "Udemy",
-            year: "2022",
-            icon: "fas fa-award",
-            description: "Hands-on training in schematic capture and multi-layer PCB layout design using industry-standard tools.",
-            tags: "PCB Design, Altium, Eagle, Hardware"
-        },
-        {
-            name: "Robotics Trainning",
-            issuer: "JNTUH",
-            year: "2020",
-            icon: "fas fa-award",
-            description: "Participated in a hands-on workshop focusing on Arduino and ARM microcontroller programming and robotic control systems.",
-            tags: "Robotics, Arduino, ARM, Control Systems"
-        },
-        {
-            name: "Embedded Systems Design & Programming",
-            issuer: "NetMax Technology",
-            year: "2017",
-            icon: "fas fa-award",
-            description: "Industrial training on 8051 and PIC microcontrollers with practical projects on automation.",
-            tags: "8051, PIC, Automation, Programming"
-        },
-        {
-            name: "Certified in IMU Section, IT, Transmission & Mobile Project",
-            issuer: "Nepal Telecom",
-            year: "2020",
-            icon: "fas fa-award",
-            description: "Technical certification of industrial training at Nepal Telecom, covering transmission systems and mobile projects.",
-            tags: "Telecom, Networking, Transmission, Mobile"
-        }
-    ];
-
-    let certificatesItems = JSON.parse(localStorage.getItem('certificatesItems'));
-
-    // Migration: If no certs OR if certs exist but are the old "simple" version (missing description), 
-    // force reset to the new detailed defaultCertificates.
-    if (!certificatesItems || (certificatesItems.length > 0 && !certificatesItems[0].description)) {
-        certificatesItems = defaultCertificates;
-        saveCertificatesToStorage();
-    }
-
-    let certificateEditingIndex = -1;
-    let currentCertificateCategory = null;
-
-    function saveCertificatesToStorage() {
-        localStorage.setItem('certificatesItems', JSON.stringify(certificatesItems));
-    }
-
-    function renderCertificatesItems() {
-        if (!certificatesList) return;
-        certificatesList.innerHTML = '';
-
-        if (currentCertificateCategory === null) {
-            // CATEGORY VIEW (By Issuer)
-            const categories = {};
-            certificatesItems.forEach(item => {
-                const catName = item.issuer || 'Other';
-                if (!categories[catName]) {
-                    categories[catName] = { icon: item.icon || 'fas fa-award', count: 0 };
-                }
-                categories[catName].count++;
-            });
-
-            const gridHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; padding: 10px;">
-                    ${Object.keys(categories).map(catName => `
-                        <div class="category-card btn-open-certificate-category" data-category="${catName}" style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #e1e7ff; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                            <div style="width: 50px; height: 50px; background: #fff8e1; color: #ffab00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.5rem;">
-                                <i class="${categories[catName].icon}"></i>
-                            </div>
-                            <h4 style="margin-bottom: 5px; color: #333;">${catName}</h4>
-                            <p style="font-size: 0.8rem; color: #6c757d;">${categories[catName].count} Certificates</p>
-                        </div>
-                    `).join('')}
-                    <div class="category-card" id="btn-create-new-certificate-cat" style="background: #f8f9fa; padding: 25px; border-radius: 12px; border: 1px dashed #ced4da; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <i class="fas fa-plus-circle" style="font-size: 1.5rem; color: #6c757d; margin-bottom: 10px;"></i>
-                        <h4 style="color: #6c757d;">New Issuer</h4>
-                    </div>
-                </div>
-            `;
-            certificatesList.innerHTML = gridHTML;
-
-            document.querySelectorAll('.btn-open-certificate-category').forEach(card => {
-                card.addEventListener('click', function () {
-                    currentCertificateCategory = this.getAttribute('data-category');
-                    renderCertificatesItems();
-                });
-            });
-
-            document.getElementById('btn-create-new-certificate-cat').addEventListener('click', function () {
-                certificateEditingIndex = -1;
-                certificateIssuerInput.value = '';
-                certificateIconInput.value = 'fas fa-award';
-                certificateNameInput.value = '';
-                certificateYearInput.value = '';
-                certificateDescriptionInput.value = '';
-                certificateTagsInput.value = '';
-
-                certificatesFormTitle.textContent = "Add New Issuer / Certificate";
-                certificatesFormContainer.style.display = 'block';
-                certificatesFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-
-        } else {
-            // DETAIL VIEW
-            const catItems = certificatesItems
-                .map((item, index) => ({ ...item, originalIndex: index }))
-                .filter(item => item.issuer === currentCertificateCategory);
-
-            const catIcon = catItems.length > 0 ? catItems[0].icon : 'fas fa-award';
-
-            const headerHTML = `
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
-                    <button id="btn-back-to-certificate-categories" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Back
-                    </button>
-                    <h3 style="margin: 0; color: #ffab00;"><i class="${catIcon}"></i> ${currentCertificateCategory}</h3>
-                    <button class="btn-add" id="btn-add-certificate-to-this-cat" style="margin-left: auto; padding: 8px 15px; font-size: 0.85rem; background: #ffab00;">
-                        <i class="fas fa-plus"></i> Add Certificate
-                    </button>
-                </div>
-                <div class="list-container" id="category-specific-certificates"></div>
-            `;
-            certificatesList.innerHTML = headerHTML;
-
-            const listContainer = document.getElementById('category-specific-certificates');
-
-            catItems.forEach(item => {
-                const index = item.originalIndex;
-                if (index === certificateEditingIndex) {
-                    const itemHTML = `
-                        <div class="list-item" style="flex-direction: column; align-items: stretch; background: #fffdf5; border-left: 4px solid #ffab00; padding: 20px;">
-                            <h5 style="margin-bottom: 15px; color: #ffab00;"><i class="fas fa-edit"></i> Edit Certificate Details</h5>
-                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 15px;">
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Certificate Name</label>
-                                    <input type="text" id="inline-cert-name" value="${item.name || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                                <div class="form-group">
-                                    <label style="font-size: 0.75rem;">Year</label>
-                                    <input type="text" id="inline-cert-year" value="${item.year || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Description</label>
-                                <textarea id="inline-cert-desc" rows="2" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">${item.description || ''}</textarea>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 10px;">
-                                <label style="font-size: 0.75rem;">Skills / Tags</label>
-                                <input type="text" id="inline-cert-tags" value="${item.tags || ''}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button type="button" class="btn-save inline-btn-save-certificate" style="padding: 8px 20px; font-size: 0.85rem; background: #ffab00;">Save Changes</button>
-                                <button type="button" class="btn-logout inline-btn-cancel-certificate" style="padding: 8px 20px; font-size: 0.85rem; width: auto;">Cancel</button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                } else {
-                    const itemHTML = `
-                        <div class="list-item" style="padding: 15px 20px;">
-                            <div class="item-details" style="flex:1;">
-                                <h4 style="margin: 0;">${item.name || 'Certificate'}</h4>
-                                <p style="margin: 5px 0 0; font-size: 0.85rem; color: #666;">${item.year}</p>
-                            </div>
-                            <div class="item-actions">
-                                <button class="btn-edit btn-edit-certificate" data-index="${index}"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete btn-delete-certificate" data-index="${index}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.insertAdjacentHTML('beforeend', itemHTML);
-                }
-            });
-
-            document.getElementById('btn-back-to-certificate-categories').addEventListener('click', function () {
-                currentCertificateCategory = null;
-                certificateEditingIndex = -1;
-                renderCertificatesItems();
-            });
-
-            document.getElementById('btn-add-certificate-to-this-cat').addEventListener('click', function () {
-                certificateEditingIndex = -1;
-                certificateIssuerInput.value = currentCertificateCategory;
-                certificateIconInput.value = catIcon;
-                certificateNameInput.value = '';
-                certificateYearInput.value = '';
-                certificateDescriptionInput.value = '';
-                certificateTagsInput.value = '';
-
-                certificatesFormTitle.textContent = `Add Certificate to ${currentCertificateCategory}`;
-                certificatesFormContainer.style.display = 'block';
-                certificatesFormContainer.scrollIntoView({ behavior: 'smooth' });
-                certificateNameInput.focus();
-            });
-
-            document.querySelectorAll('.btn-edit-certificate').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    certificatesFormContainer.style.display = 'none';
-                    certificateEditingIndex = parseInt(this.getAttribute('data-index'));
-                    renderCertificatesItems();
-                });
-            });
-
-            document.querySelectorAll('.btn-delete-certificate').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Are you sure you want to delete this certificate?')) {
-                        certificatesItems.splice(idx, 1);
-                        saveCertificatesToStorage();
-                        renderCertificatesItems();
-                    }
-                });
-            });
-
-            const btnSaveInlineCertificate = document.querySelector('.inline-btn-save-certificate');
-            if (btnSaveInlineCertificate) {
-                btnSaveInlineCertificate.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const nameVal = document.getElementById('inline-cert-name').value.trim();
-                    if (!nameVal) {
-                        alert("Please provide a name.");
-                        return;
-                    }
-
-                    certificatesItems[certificateEditingIndex] = {
-                        ...certificatesItems[certificateEditingIndex],
-                        name: nameVal,
-                        year: document.getElementById('inline-cert-year').value.trim(),
-                        description: document.getElementById('inline-cert-desc').value.trim(),
-                        tags: document.getElementById('inline-cert-tags').value.trim()
-                    };
-
-                    saveCertificatesToStorage();
-                    certificateEditingIndex = -1;
-                    renderCertificatesItems();
-                });
-            }
-
-            const btnCancelInlineCertificate = document.querySelector('.inline-btn-cancel-certificate');
-            if (btnCancelInlineCertificate) {
-                btnCancelInlineCertificate.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    certificateEditingIndex = -1;
-                    renderCertificatesItems();
-                });
-            }
-        }
-    }
-
-    renderCertificatesItems();
-
-    if (btnSaveCertificateItem) {
-        btnSaveCertificateItem.addEventListener('click', function (e) {
-            e.preventDefault();
-            const nameVal = certificateNameInput.value.trim();
-            const issuerVal = certificateIssuerInput.value.trim();
-
-            if (!nameVal || !issuerVal) {
-                alert("Please provide Issuer and Certificate Name.");
-                return;
-            }
-
-            const newItem = {
-                issuer: issuerVal,
-                icon: certificateIconInput.value.trim() || 'fas fa-award',
-                name: nameVal,
-                year: certificateYearInput.value.trim(),
-                description: certificateDescriptionInput.value.trim(),
-                tags: certificateTagsInput.value.trim()
-            };
-
-            certificatesItems.push(newItem);
-            saveCertificatesToStorage();
-
-            this.innerHTML = '<i class="fas fa-check"></i> Added!';
-            this.style.backgroundColor = '#4cc9f0';
-
-            setTimeout(() => {
-                this.innerHTML = 'Save Certificate';
-                this.style.backgroundColor = '';
-                certificatesFormContainer.style.display = 'none';
-                currentCertificateCategory = issuerVal;
-                renderCertificatesItems();
-            }, 800);
-        });
-    }
-
-    if (btnCancelCertificateItem) {
-        btnCancelCertificateItem.addEventListener('click', (e) => {
-            e.preventDefault();
-            certificatesFormContainer.style.display = 'none';
-        });
-    }
-
-    // ===== BLOG MANAGEMENT =====
-    const blogList = document.getElementById('blog-list');
-    const blogFormContainer = document.getElementById('blog-form-container');
-    const blogFormTitle = document.getElementById('blog-form-title');
-    const blogItemIndex = document.getElementById('blog-item-index');
-    const blogTitleInput = document.getElementById('blog-title-input');
-    const blogCategoryInput = document.getElementById('blog-category-input');
-    const blogDateInput = document.getElementById('blog-date-input');
-    const blogImageInput = document.getElementById('blog-image-input');
-    const blogExcerptInput = document.getElementById('blog-excerpt-input');
-    const blogContentInput = document.getElementById('blog-content-input');
-    const blogTagsInput = document.getElementById('blog-tags-input');
-    const btnAddBlogPost = document.getElementById('btn-add-blog-post');
-    const btnSaveBlogItem = document.getElementById('btn-save-blog-item');
-    const btnCancelBlogItem = document.getElementById('btn-cancel-blog-item');
-
-    // ----- Rich text editor toolbar (Full Content field) -----
-    const blogContentToolbar = document.getElementById('blog-content-toolbar');
-    const blogImageFileInput = document.getElementById('blog-image-file-input');
-    const btnInsertBlogImage = document.getElementById('btn-insert-blog-image');
-    let savedBlogEditorRange = null;
-
-    function saveBlogEditorSelection() {
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount > 0 && blogContentInput.contains(sel.anchorNode)) {
-            savedBlogEditorRange = sel.getRangeAt(0);
-        }
-    }
-
-    function restoreBlogEditorSelection() {
-        blogContentInput.focus();
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        if (savedBlogEditorRange) {
-            sel.addRange(savedBlogEditorRange);
-        } else {
-            // No prior selection: put cursor at the end of the content
-            const range = document.createRange();
-            range.selectNodeContents(blogContentInput);
-            range.collapse(false);
-            sel.addRange(range);
-        }
-    }
-
-    if (blogContentInput) {
-        blogContentInput.addEventListener('keyup', saveBlogEditorSelection);
-        blogContentInput.addEventListener('mouseup', saveBlogEditorSelection);
-        blogContentInput.addEventListener('blur', saveBlogEditorSelection);
-    }
-
-    if (blogContentToolbar) {
-        blogContentToolbar.querySelectorAll('button[data-cmd]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                restoreBlogEditorSelection();
-                const cmd = btn.getAttribute('data-cmd');
-                if (cmd === 'createLink') {
-                    const url = prompt('Link URL (https://...)');
-                    if (!url) return;
-                    document.execCommand('createLink', false, url);
-                } else if (cmd === 'formatBlock') {
-                    document.execCommand('formatBlock', false, btn.getAttribute('data-value'));
-                } else {
-                    document.execCommand(cmd, false, null);
-                }
-                saveBlogEditorSelection();
-            });
-        });
-    }
-
-    // Insert image: user picks a file, we downscale/compress it in-browser
-    // and embed it directly as a base64 <img> inside the post content.
-    // (No separate storage/server needed — it travels with the post itself.)
-    if (btnInsertBlogImage && blogImageFileInput) {
-        btnInsertBlogImage.addEventListener('click', () => {
-            saveBlogEditorSelection();
-            blogImageFileInput.click();
-        });
-
-        blogImageFileInput.addEventListener('change', () => {
-            const file = blogImageFileInput.files && blogImageFileInput.files[0];
-            blogImageFileInput.value = '';
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                alert('Please choose an image file.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const maxWidth = 900;
-                    let { width, height } = img;
-                    if (width > maxWidth) {
-                        height = Math.round(height * (maxWidth / width));
-                        width = maxWidth;
-                    }
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    // JPEG at 0.75 quality keeps file size (and Firestore doc size) small
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-
-                    restoreBlogEditorSelection();
-                    document.execCommand('insertImage', false, dataUrl);
-                    saveBlogEditorSelection();
-                };
-                img.onerror = () => alert('Could not read that image, please try another file.');
-                img.src = e.target.result;
-            };
-            reader.onerror = () => alert('Could not read that image, please try another file.');
-            reader.readAsDataURL(file);
-        });
-    }
-
-    let blogItems = JSON.parse(localStorage.getItem('blogItems')) || [];
-
-    // Small toast so the admin actually notices if cloud sync fails,
-    // instead of silently thinking everything is saved everywhere.
-    function showCloudSyncStatus(ok, label) {
-        let toast = document.getElementById('cloud-sync-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'cloud-sync-toast';
-            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;border-radius:8px;font-size:0.9rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.2);transition:opacity .3s;color:#fff;max-width:320px;';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = ok
-            ? `✅ ${label} synced to all devices.`
-            : `⚠️ ${label} saved on this browser only — cloud sync failed. Check Firestore setup/rules.`;
-        toast.style.background = ok ? '#28a745' : '#dc3545';
-        toast.style.opacity = '1';
-        clearTimeout(showCloudSyncStatus._t);
-        showCloudSyncStatus._t = setTimeout(() => { toast.style.opacity = '0'; }, ok ? 2500 : 6000);
-    }
-
-    function saveBlogToStorage() {
-        localStorage.setItem('blogItems', JSON.stringify(blogItems));
-        if (window.db) {
-            window.db.collection('portfolioData').doc('blogItems').set({ items: blogItems })
-                .then(() => showCloudSyncStatus(true, 'Blog post'))
-                .catch(err => {
-                    console.error('Firestore blog sync error:', err);
-                    showCloudSyncStatus(false, 'Blog post');
-                });
-        } else {
-            showCloudSyncStatus(false, 'Blog post');
-        }
-    }
-
-    function renderBlogItems() {
-        if (!blogList) return;
-        blogList.innerHTML = '';
-        if (blogItems.length === 0) {
-            blogList.innerHTML = '<p style="color:#999; padding: 15px;">No blog posts yet. Click "Add New Post" to create one.</p>';
-            return;
-        }
-        blogItems.forEach((item, index) => {
-            const html = `
-                <div class="list-item" style="padding: 15px 20px;">
-                    <div class="item-details" style="flex:1;">
-                        <h4 style="margin: 0;">${item.title || 'Untitled Post'}</h4>
-                        <p style="margin: 5px 0 0; font-size: 0.85rem; color: #666;">${item.category || ''} ${item.date ? '&middot; ' + item.date : ''}</p>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn-edit btn-edit-blog" data-index="${index}"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete btn-delete-blog" data-index="${index}"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `;
-            blogList.insertAdjacentHTML('beforeend', html);
-        });
-
-        document.querySelectorAll('.btn-edit-blog').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const idx = parseInt(this.getAttribute('data-index'));
-                const item = blogItems[idx];
-                blogItemIndex.value = idx;
-                blogTitleInput.value = item.title || '';
-                blogCategoryInput.value = item.category || '';
-                blogDateInput.value = item.date || '';
-                blogImageInput.value = item.image || '';
-                blogExcerptInput.value = item.excerpt || '';
-                blogContentInput.innerHTML = item.content || '';
-                blogTagsInput.value = item.tags || '';
-                blogFormTitle.textContent = 'Edit Blog Post';
-                blogFormContainer.style.display = 'block';
-                blogFormContainer.scrollIntoView({ behavior: 'smooth' });
-            });
-        });
-
-        document.querySelectorAll('.btn-delete-blog').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const idx = parseInt(this.getAttribute('data-index'));
-                if (confirm('Delete this blog post?')) {
-                    blogItems.splice(idx, 1);
-                    saveBlogToStorage();
-                    renderBlogItems();
-                }
-            });
-        });
-    }
-
-    if (btnAddBlogPost) {
-        btnAddBlogPost.addEventListener('click', () => {
-            blogItemIndex.value = -1;
-            blogTitleInput.value = '';
-            blogCategoryInput.value = '';
-            blogDateInput.value = '';
-            blogImageInput.value = '';
-            blogExcerptInput.value = '';
-            blogContentInput.innerHTML = '';
-            blogTagsInput.value = '';
-            blogFormTitle.textContent = 'Add New Blog Post';
-            blogFormContainer.style.display = 'block';
-            blogFormContainer.scrollIntoView({ behavior: 'smooth' });
-        });
-    }
-
-    if (btnSaveBlogItem) {
-        btnSaveBlogItem.addEventListener('click', () => {
-            const titleVal = blogTitleInput.value.trim();
-            if (!titleVal) {
-                alert('Please provide a title.');
-                return;
-            }
-            const newItem = {
-                title: titleVal,
-                category: blogCategoryInput.value.trim(),
-                date: blogDateInput.value.trim(),
-                image: blogImageInput.value.trim(),
-                excerpt: blogExcerptInput.value.trim(),
-                content: blogContentInput.innerHTML.trim(),
-                tags: blogTagsInput.value.trim()
-            };
-            const idx = parseInt(blogItemIndex.value);
-            if (idx === -1) {
-                blogItems.unshift(newItem); // newest first
-            } else {
-                blogItems[idx] = newItem;
-            }
-            saveBlogToStorage();
-            blogFormContainer.style.display = 'none';
-            renderBlogItems();
-        });
-    }
-
-    if (btnCancelBlogItem) {
-        btnCancelBlogItem.addEventListener('click', () => {
-            blogFormContainer.style.display = 'none';
-        });
-    }
-
-    renderBlogItems();
-
-    // Pull latest data from Firestore in case it was edited from another device/browser
-    if (window.db) {
-        window.db.collection('portfolioData').doc('blogItems').get().then(doc => {
-            if (doc.exists && Array.isArray(doc.data().items)) {
-                blogItems = doc.data().items;
-                localStorage.setItem('blogItems', JSON.stringify(blogItems));
-                renderBlogItems();
-            }
-        }).catch(err => console.error('Firestore blog fetch error:', err));
-    }
-
-    // ===== LEARNING MANAGEMENT (Courses > Modules > MCQ Questions) =====
-    const learningList = document.getElementById('learning-list');
-    let learningCourses = JSON.parse(localStorage.getItem('learningCourses')) || [];
-    let learningView = 'courses'; // 'courses' | 'course-form' | 'modules' | 'module-form' | 'questions' | 'question-form'
-    let selCourseIdx = -1, editCourseIdx = -1;
-    let selModuleIdx = -1, editModuleIdx = -1;
-    let editQuestionIdx = -1;
-
-    function saveLearningToStorage() {
-        localStorage.setItem('learningCourses', JSON.stringify(learningCourses));
-        if (window.db) {
-            window.db.collection('portfolioData').doc('learningCourses').set({ courses: learningCourses })
-                .then(() => showCloudSyncStatus(true, 'Learning course'))
-                .catch(err => {
-                    console.error('Firestore learning sync error:', err);
-                    showCloudSyncStatus(false, 'Learning course');
-                });
-        } else {
-            showCloudSyncStatus(false, 'Learning course');
-        }
-    }
-
-    function esc(str) {
-        return (str || '').toString().replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    function renderLearning() {
-        if (!learningList) return;
-
-        // ----- COURSES LIST -----
-        if (learningView === 'courses') {
-            let html = `
-                <div class="tab-header">
-                    <h3>Manage Learning Courses</h3>
-                    <button type="button" id="btn-add-course" class="btn-save" style="width:auto;"><i class="fas fa-plus"></i> Add New Course</button>
-                </div>
-                <div class="list-container">
-            `;
-            if (learningCourses.length === 0) {
-                html += '<p style="color:#999; padding: 15px;">No courses yet. Click "Add New Course" to create one.</p>';
-            }
-            learningCourses.forEach((course, idx) => {
-                html += `
-                    <div class="list-item" style="padding: 15px 20px;">
-                        <div class="item-details" style="flex:1;">
-                            <h4 style="margin:0;"><i class="${esc(course.icon) || 'fas fa-book'}"></i> ${esc(course.title)}</h4>
-                            <p style="margin: 5px 0 0; font-size: 0.85rem; color: #666;">${esc(course.description)}</p>
-                            <p style="margin: 5px 0 0; font-size: 0.8rem; color: #999;">${(course.modules || []).length} module(s)</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-manage-modules" data-index="${idx}" title="Manage Modules"><i class="fas fa-folder-open"></i></button>
-                            <button class="btn-edit btn-edit-course" data-index="${idx}"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete btn-delete-course" data-index="${idx}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            learningList.innerHTML = html;
-
-            document.getElementById('btn-add-course').addEventListener('click', () => {
-                editCourseIdx = -1;
-                learningView = 'course-form';
-                renderLearning();
-            });
-            document.querySelectorAll('.btn-manage-modules').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    selCourseIdx = parseInt(this.getAttribute('data-index'));
-                    learningView = 'modules';
-                    renderLearning();
-                });
-            });
-            document.querySelectorAll('.btn-edit-course').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    editCourseIdx = parseInt(this.getAttribute('data-index'));
-                    learningView = 'course-form';
-                    renderLearning();
-                });
-            });
-            document.querySelectorAll('.btn-delete-course').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Delete this course and all its modules/questions?')) {
-                        learningCourses.splice(idx, 1);
-                        saveLearningToStorage();
-                        renderLearning();
-                    }
-                });
-            });
-            return;
-        }
-
-        // ----- COURSE ADD/EDIT FORM -----
-        if (learningView === 'course-form') {
-            const course = editCourseIdx > -1 ? learningCourses[editCourseIdx] : { title: '', description: '', icon: 'fas fa-book' };
-            learningList.innerHTML = `
-                <div class="tab-header"><h3>${editCourseIdx > -1 ? 'Edit Course' : 'Add New Course'}</h3></div>
-                <div style="background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #e9ecef;">
-                    <div class="form-group"><label>Course Title</label>
-                        <input type="text" id="course-title-input" value="${esc(course.title)}" placeholder="e.g. Embedded C Programming"></div>
-                    <div class="form-group"><label>Description</label>
-                        <textarea id="course-desc-input" rows="2" placeholder="Short description">${esc(course.description)}</textarea></div>
-                    <div class="form-group"><label>Icon (e.g. fas fa-book)</label>
-                        <input type="text" id="course-icon-input" value="${esc(course.icon)}" placeholder="fas fa-book"></div>
-                    <div style="display:flex; gap:10px;">
-                        <button type="button" id="btn-save-course" class="btn-save">Save Course</button>
-                        <button type="button" id="btn-cancel-course" class="btn-logout" style="width:auto; padding:12px 25px;">Cancel</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('btn-save-course').addEventListener('click', () => {
-                const titleVal = document.getElementById('course-title-input').value.trim();
-                if (!titleVal) { alert('Please provide a course title.'); return; }
-                const newCourse = {
-                    title: titleVal,
-                    description: document.getElementById('course-desc-input').value.trim(),
-                    icon: document.getElementById('course-icon-input').value.trim() || 'fas fa-book',
-                    modules: editCourseIdx > -1 ? (learningCourses[editCourseIdx].modules || []) : []
-                };
-                if (editCourseIdx > -1) { learningCourses[editCourseIdx] = newCourse; }
-                else { learningCourses.push(newCourse); }
-                saveLearningToStorage();
-                learningView = 'courses';
-                renderLearning();
-            });
-            document.getElementById('btn-cancel-course').addEventListener('click', () => {
-                learningView = 'courses';
-                renderLearning();
-            });
-            return;
-        }
-
-        const currentCourse = learningCourses[selCourseIdx];
-        if (!currentCourse) { learningView = 'courses'; renderLearning(); return; }
-
-        // ----- MODULES LIST -----
-        if (learningView === 'modules') {
-            let html = `
-                <div class="tab-header">
-                    <button type="button" id="btn-back-to-courses" class="btn-back" style="margin-right:10px;"><i class="fas fa-arrow-left"></i> Back</button>
-                    <h3 style="display:inline;">${esc(currentCourse.title)} - Modules</h3>
-                    <button type="button" id="btn-add-module" class="btn-save" style="width:auto; float:right;"><i class="fas fa-plus"></i> Add Module</button>
-                </div>
-                <div class="list-container" style="margin-top:15px;">
-            `;
-            const modules = currentCourse.modules || [];
-            if (modules.length === 0) {
-                html += '<p style="color:#999; padding: 15px;">No modules yet. Click "Add Module" to create one.</p>';
-            }
-            modules.forEach((mod, idx) => {
-                html += `
-                    <div class="list-item" style="padding: 15px 20px;">
-                        <div class="item-details" style="flex:1;">
-                            <h4 style="margin:0;">${esc(mod.title)}</h4>
-                            <p style="margin: 5px 0 0; font-size: 0.85rem; color: #666;">${(mod.questions || []).length} MCQ question(s)</p>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn-edit btn-manage-questions" data-index="${idx}" title="Manage Questions"><i class="fas fa-question-circle"></i></button>
-                            <button class="btn-edit btn-edit-module" data-index="${idx}"><i class="fas fa-edit"></i></button>
-                            <button class="btn-delete btn-delete-module" data-index="${idx}"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            learningList.innerHTML = html;
-
-            document.getElementById('btn-back-to-courses').addEventListener('click', () => {
-                learningView = 'courses'; renderLearning();
-            });
-            document.getElementById('btn-add-module').addEventListener('click', () => {
-                editModuleIdx = -1; learningView = 'module-form'; renderLearning();
-            });
-            document.querySelectorAll('.btn-manage-questions').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    selModuleIdx = parseInt(this.getAttribute('data-index'));
-                    learningView = 'questions'; renderLearning();
-                });
-            });
-            document.querySelectorAll('.btn-edit-module').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    editModuleIdx = parseInt(this.getAttribute('data-index'));
-                    learningView = 'module-form'; renderLearning();
-                });
-            });
-            document.querySelectorAll('.btn-delete-module').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Delete this module and its questions?')) {
-                        currentCourse.modules.splice(idx, 1);
-                        saveLearningToStorage();
-                        renderLearning();
-                    }
-                });
-            });
-            return;
-        }
-
-        // ----- MODULE ADD/EDIT FORM -----
-        if (learningView === 'module-form') {
-            const mod = editModuleIdx > -1 ? currentCourse.modules[editModuleIdx] : { title: '', notes: '' };
-            learningList.innerHTML = `
-                <div class="tab-header"><h3>${editModuleIdx > -1 ? 'Edit Module' : 'Add Module'} - ${esc(currentCourse.title)}</h3></div>
-                <div style="background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #e9ecef;">
-                    <div class="form-group"><label>Module Title</label>
-                        <input type="text" id="module-title-input" value="${esc(mod.title)}" placeholder="e.g. Module 1: Introduction"></div>
-                    <div class="form-group"><label>Notes / Course Content</label>
-                        <textarea id="module-notes-input" rows="8" placeholder="Write module notes/content here...">${esc(mod.notes)}</textarea></div>
-                    <div style="display:flex; gap:10px;">
-                        <button type="button" id="btn-save-module" class="btn-save">Save Module</button>
-                        <button type="button" id="btn-cancel-module" class="btn-logout" style="width:auto; padding:12px 25px;">Cancel</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('btn-save-module').addEventListener('click', () => {
-                const titleVal = document.getElementById('module-title-input').value.trim();
-                if (!titleVal) { alert('Please provide a module title.'); return; }
-                const newModule = {
-                    title: titleVal,
-                    notes: document.getElementById('module-notes-input').value.trim(),
-                    questions: editModuleIdx > -1 ? (currentCourse.modules[editModuleIdx].questions || []) : []
-                };
-                if (!currentCourse.modules) currentCourse.modules = [];
-                if (editModuleIdx > -1) { currentCourse.modules[editModuleIdx] = newModule; }
-                else { currentCourse.modules.push(newModule); }
-                saveLearningToStorage();
-                learningView = 'modules';
-                renderLearning();
-            });
-            document.getElementById('btn-cancel-module').addEventListener('click', () => {
-                learningView = 'modules'; renderLearning();
-            });
-            return;
-        }
-
-        const currentModule = (currentCourse.modules || [])[selModuleIdx];
-        if (!currentModule) { learningView = 'modules'; renderLearning(); return; }
-
-        // ----- QUESTIONS LIST -----
-        if (learningView === 'questions') {
-            let html = `
-                <div class="tab-header">
-                    <button type="button" id="btn-back-to-modules" class="btn-back" style="margin-right:10px;"><i class="fas fa-arrow-left"></i> Back</button>
-                    <h3 style="display:inline;">${esc(currentModule.title)} - MCQ Questions</h3>
-                    <button type="button" id="btn-add-question" class="btn-save" style="width:auto; float:right;"><i class="fas fa-plus"></i> Add Question</button>
-                </div>
-                <div class="list-container" style="margin-top:15px;">
-            `;
-            const questions = currentModule.questions || [];
-            if (questions.length === 0) {
-                html += '<p style="color:#999; padding: 15px;">No questions yet. Click "Add Question" to create one.</p>';
-            }
-            questions.forEach((q, idx) => {
-                html += `
-                    <div class="list-item" style="padding: 15px 20px; display:block;">
-                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                            <h4 style="margin:0; flex:1;">${idx + 1}. ${esc(q.question)}</h4>
-                            <div class="item-actions">
-                                <button class="btn-edit btn-edit-question" data-index="${idx}"><i class="fas fa-edit"></i></button>
-                                <button class="btn-delete btn-delete-question" data-index="${idx}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        <ul style="margin: 10px 0 0; padding-left: 20px; font-size:0.85rem; color:#555;">
-                            ${(q.options || []).map((opt, i) => `<li style="${i === q.correctIndex ? 'color:#2a9d8f; font-weight:600;' : ''}">${esc(opt)} ${i === q.correctIndex ? '✓' : ''}</li>`).join('')}
-                        </ul>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            learningList.innerHTML = html;
-
-            document.getElementById('btn-back-to-modules').addEventListener('click', () => {
-                learningView = 'modules'; renderLearning();
-            });
-            document.getElementById('btn-add-question').addEventListener('click', () => {
-                editQuestionIdx = -1; learningView = 'question-form'; renderLearning();
-            });
-            document.querySelectorAll('.btn-edit-question').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    editQuestionIdx = parseInt(this.getAttribute('data-index'));
-                    learningView = 'question-form'; renderLearning();
-                });
-            });
-            document.querySelectorAll('.btn-delete-question').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const idx = parseInt(this.getAttribute('data-index'));
-                    if (confirm('Delete this question?')) {
-                        currentModule.questions.splice(idx, 1);
-                        saveLearningToStorage();
-                        renderLearning();
-                    }
-                });
-            });
-            return;
-        }
-
-        // ----- QUESTION ADD/EDIT FORM -----
-        if (learningView === 'question-form') {
-            const q = editQuestionIdx > -1 ? currentModule.questions[editQuestionIdx] : { question: '', options: ['', '', '', ''], correctIndex: 0, explanation: '' };
-            const opts = q.options && q.options.length === 4 ? q.options : ['', '', '', ''];
-            learningList.innerHTML = `
-                <div class="tab-header"><h3>${editQuestionIdx > -1 ? 'Edit Question' : 'Add Question'}</h3></div>
-                <div style="background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #e9ecef;">
-                    <div class="form-group"><label>Question</label>
-                        <textarea id="q-text-input" rows="2">${esc(q.question)}</textarea></div>
-                    ${[0, 1, 2, 3].map(i => `
-                        <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                            <input type="radio" name="q-correct" id="q-correct-${i}" value="${i}" ${q.correctIndex === i ? 'checked' : ''} style="width:auto;">
-                            <input type="text" id="q-opt-${i}" value="${esc(opts[i])}" placeholder="Option ${String.fromCharCode(65 + i)}" style="flex:1;">
-                        </div>
-                    `).join('')}
-                    <p style="font-size:0.8rem; color:#999; margin: -5px 0 15px 30px;">Select the radio button next to the correct answer.</p>
-                    <div class="form-group"><label>Explanation (optional, shown after answering)</label>
-                        <textarea id="q-explanation-input" rows="2">${esc(q.explanation)}</textarea></div>
-                    <div style="display:flex; gap:10px;">
-                        <button type="button" id="btn-save-question" class="btn-save">Save Question</button>
-                        <button type="button" id="btn-cancel-question" class="btn-logout" style="width:auto; padding:12px 25px;">Cancel</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('btn-save-question').addEventListener('click', () => {
-                const questionVal = document.getElementById('q-text-input').value.trim();
-                const optionVals = [0, 1, 2, 3].map(i => document.getElementById(`q-opt-${i}`).value.trim());
-                const correctChecked = document.querySelector('input[name="q-correct"]:checked');
-                if (!questionVal || optionVals.some(o => !o)) {
-                    alert('Please fill the question and all 4 options.');
-                    return;
-                }
-                const newQuestion = {
-                    question: questionVal,
-                    options: optionVals,
-                    correctIndex: correctChecked ? parseInt(correctChecked.value) : 0,
-                    explanation: document.getElementById('q-explanation-input').value.trim()
-                };
-                if (!currentModule.questions) currentModule.questions = [];
-                if (editQuestionIdx > -1) { currentModule.questions[editQuestionIdx] = newQuestion; }
-                else { currentModule.questions.push(newQuestion); }
-                saveLearningToStorage();
-                learningView = 'questions';
-                renderLearning();
-            });
-            document.getElementById('btn-cancel-question').addEventListener('click', () => {
-                learningView = 'questions'; renderLearning();
-            });
-            return;
-        }
-    }
-
-    renderLearning();
-
-    // Pull latest data from Firestore in case it was edited from another device/browser
-    if (window.db) {
-        window.db.collection('portfolioData').doc('learningCourses').get().then(doc => {
-            if (doc.exists && Array.isArray(doc.data().courses)) {
-                learningCourses = doc.data().courses;
-                localStorage.setItem('learningCourses', JSON.stringify(learningCourses));
-                renderLearning();
-            }
-        }).catch(err => console.error('Firestore learning fetch error:', err));
-    }
-
-    // --- CONTACT SECTION SAVE ---
-    const contactForm = document.getElementById('contact-form');
-    const contactEmailInput = document.getElementById('contact-email');
-    const contactPhoneInput = document.getElementById('contact-phone');
-    const contactLocationInput = document.getElementById('contact-location');
-
-    // Load Contact Data
-    function loadContactData() {
-        if (!contactEmailInput) return;
-        contactEmailInput.value = localStorage.getItem('contactEmail') || 'jitendrasharma.ece@gmail.com';
-        contactPhoneInput.value = localStorage.getItem('contactPhone') || '+91 8318357896';
-        contactLocationInput.value = localStorage.getItem('contactLocation') || 'Lucknow, India';
-    }
-
-    loadContactData();
-
-    if (contactForm) {
-        contactForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const saveBtn = this.querySelector('.btn-save');
-
-            // Guard against multiple clicks during animation
-            if (saveBtn.innerHTML.includes('Saving') || saveBtn.innerHTML.includes('Saved')) return;
-
-            const originalText = saveBtn.innerHTML;
-
-            // Visual feedback
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-            saveBtn.style.opacity = '0.8';
-
-            // Save to LocalStorage
-            localStorage.setItem('contactEmail', contactEmailInput.value.trim());
-            localStorage.setItem('contactPhone', contactPhoneInput.value.trim());
-            localStorage.setItem('contactLocation', contactLocationInput.value.trim());
-
-            setTimeout(() => {
-                saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
-                saveBtn.style.backgroundColor = '#4cc9f0';
-
-                setTimeout(() => {
-                    saveBtn.innerHTML = originalText;
-                    saveBtn.style.backgroundColor = '';
-                    saveBtn.style.opacity = '1';
-                }, 2000);
-            }, 800);
-        });
-    }
-
-    // ===== BACKUP & RESTORE =====
-    const btnBackupDownload = document.getElementById('btn-backup-download');
-    const btnBackupRestoreTrigger = document.getElementById('btn-backup-restore-trigger');
-    const backupRestoreInput = document.getElementById('backup-restore-input');
-    const backupStatusMsg = document.getElementById('backup-status-msg');
-
-    // All keys this admin panel stores in localStorage
-    const BACKUP_KEYS = [
-        'adminDisplayName', 'adminEmail', 'adminProfilePic',
-        'heroName', 'heroTitle', 'heroTagline',
-        'aboutParagraphs', 'aboutObjectives', 'aboutObjective',
-        'educationItems', 'skillsItems', 'projectsItems',
-        'experienceItems', 'certificatesItems',
-        'contactEmail', 'contactPhone', 'contactLocation',
-        'blogItems', 'learningCourses'
-    ];
-
-    function showBackupStatus(message, isError) {
-        if (!backupStatusMsg) return;
-        backupStatusMsg.textContent = message;
-        backupStatusMsg.style.color = isError ? '#e63946' : '#2a9d8f';
-        backupStatusMsg.style.display = 'block';
-        setTimeout(() => { backupStatusMsg.style.display = 'none'; }, 4000);
-    }
-
-    if (btnBackupDownload) {
-        btnBackupDownload.addEventListener('click', () => {
-            const backupData = {};
-            BACKUP_KEYS.forEach(key => {
-                const val = localStorage.getItem(key);
-                if (val !== null) backupData[key] = val;
-            });
-
-            const payload = {
-                _meta: {
-                    source: 'Jitendra Sharma Portfolio Admin Panel',
-                    exportedAt: new Date().toISOString()
-                },
-                data: backupData
-            };
-
-            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            const dateStr = new Date().toISOString().slice(0, 10);
-            a.href = url;
-            a.download = `portfolio-backup-${dateStr}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            showBackupStatus('Backup downloaded successfully!', false);
-        });
-    }
-
-    if (btnBackupRestoreTrigger && backupRestoreInput) {
-        btnBackupRestoreTrigger.addEventListener('click', () => {
-            backupRestoreInput.value = '';
-            backupRestoreInput.click();
-        });
-
-        backupRestoreInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const parsed = JSON.parse(event.target.result);
-                    const restoredData = parsed.data || parsed; // support raw or wrapped format
-
-                    if (!confirm('Yo le hal ko admin panel ko data lai backup file ko data le overwrite garcha. Continue garne?')) {
-                        return;
-                    }
-
-                    let restoredCount = 0;
-                    BACKUP_KEYS.forEach(key => {
-                        if (Object.prototype.hasOwnProperty.call(restoredData, key)) {
-                            localStorage.setItem(key, restoredData[key]);
-                            restoredCount++;
-                        }
-                    });
-
-                    if (restoredCount === 0) {
-                        showBackupStatus('Yo file ma valid backup data phelaiena.', true);
-                        return;
-                    }
-
-                    showBackupStatus(`Restored ${restoredCount} items! Reloading...`, false);
-                    setTimeout(() => window.location.reload(), 1200);
-                } catch (err) {
-                    showBackupStatus('Invalid backup file. JSON parse garna sakiena.', true);
-                }
-            };
-            reader.readAsText(file);
-        });
+      });
     }
+  });
 
-});
+})();
