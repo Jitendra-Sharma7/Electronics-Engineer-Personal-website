@@ -1,4 +1,4 @@
-# Jitendra Sharma — Professional Portfolio
+# Jitendra Sharma - Professional Portfolio
 
 > **Software Developer | AI Engineer | Networks, Security & Cloud**
 
@@ -6,7 +6,6 @@ A modern, responsive, and interactive personal portfolio website showcasing my p
 
 🌐 **Live Website:** [https://www.jitendra-sharma.com.np/](https://www.jitendra-sharma.com.np/)
 
----
 
 ## 🚀 About the Project
 
@@ -25,7 +24,6 @@ This portfolio is designed to present my professional profile as a technology pr
 
 The website combines a **modern developer-focused UI**, interactive experiences, project case studies, GitHub activity, professional experience, certifications, and technical content.
 
----
 
 # 🎨 Design Vision
 
@@ -48,7 +46,6 @@ The portfolio follows a premium, modern technology aesthetic inspired by contemp
 
 The design should feel **professional rather than flashy**, with animations used to improve the user experience instead of distracting from the content.
 
----
 
 # ✨ Key Features
 
@@ -77,7 +74,6 @@ Example positioning:
 - Download CV
 - Contact Me
 
----
 
 # 👨‍💻 About Me
 
@@ -95,7 +91,6 @@ A professional overview covering:
 
 The section should highlight both **software engineering and infrastructure expertise**.
 
----
 
 # 🧩 Featured Projects
 
@@ -124,7 +119,6 @@ Each project card can contain:
 - Healthcare Technology
 - Electronics & IoT
 
----
 
 # 📖 Project Case Studies
 
@@ -168,7 +162,6 @@ Important technical and business challenges.
 
 Project outcomes and improvements.
 
----
 
 # 💼 Professional Experience
 
@@ -258,7 +251,6 @@ Worked with:
 - Troubleshooting
 - Electronics and hardware systems
 
----
 
 # 🛠️ Technology & Skills
 
@@ -326,7 +318,6 @@ Skills will be presented using interactive technology cards rather than traditio
 - Docker
 - CI/CD
 
----
 
 # 🐙 GitHub Activity
 
@@ -341,7 +332,6 @@ A dedicated GitHub section will display:
 
 GitHub repositories should be dynamically loaded where possible.
 
----
 
 # 🏆 Certifications
 
@@ -364,7 +354,6 @@ Each certification card can include:
 - Verification link
 - Certificate preview
 
----
 
 # 🎓 Education
 
@@ -380,7 +369,6 @@ Each certification card can include:
 
 **2014 – 2017**
 
----
 
 # 📝 Technical Blog
 
@@ -410,7 +398,6 @@ The portfolio will include a technical blog for publishing articles about:
 - Open Graph previews
 - Syntax highlighting
 
----
 
 # 📚 Learning Hub
 
@@ -426,7 +413,6 @@ A dedicated learning section can showcase:
 - Cloud learning
 - Research topics
 
----
 
 # 🏢 Major Professional Projects
 
@@ -451,7 +437,6 @@ Potential modules include:
 - Notifications
 - Data Management
 
----
 
 ## Route2Uni CRM
 
@@ -470,7 +455,6 @@ Key areas include:
 - Notifications
 - Application tracking
 
----
 
 ## Healthcare Technology Platforms
 
@@ -483,7 +467,6 @@ Professional experience includes work with:
 - Technical training
 - Healthcare system support
 
----
 
 # 📊 Admin Dashboard
 
@@ -513,7 +496,6 @@ Admin
 Editor
 ```
 
----
 
 # 🌍 Multi-Language Support
 
@@ -533,7 +515,6 @@ The system should support language-specific:
 - Metadata
 - SEO content
 
----
 
 # 🌗 Dark / Light Mode
 
@@ -545,7 +526,6 @@ The website will support:
 
 Theme preference should be persisted for returning visitors.
 
----
 
 # 📱 Responsive Design
 
@@ -565,7 +545,6 @@ Special attention should be given to:
 - Performance
 - Image optimization
 
----
 
 # ⚡ Performance
 
@@ -588,7 +567,6 @@ Target:
 
 > **Fast, accessible, and production-ready user experience.**
 
----
 
 # ♿ Accessibility
 
@@ -606,7 +584,6 @@ Requirements include:
 - Reduced-motion support
 - Screen-reader compatibility
 
----
 
 # 🔍 SEO
 
@@ -635,7 +612,6 @@ AI engineering, IT infrastructure, cloud, networking, cybersecurity,
 projects, certifications and technical experience.
 ```
 
----
 
 # 🧱 Recommended Technology Stack
 
@@ -780,8 +756,6 @@ Open:
 http://localhost:3000
 ```
 
----
-
 # 🔐 Environment Variables
 
 Create a `.env.local` file:
@@ -810,7 +784,6 @@ AWS_S3_BUCKET=
 
 Never commit sensitive credentials or environment variables to GitHub.
 
----
 
 # 🗄️ Database
 
@@ -832,7 +805,6 @@ Open Prisma Studio:
 npx prisma studio
 ```
 
----
 
 # 🧪 Testing
 
@@ -855,7 +827,6 @@ Recommended tools:
 - React Testing Library
 - Playwright
 
----
 
 # 🔒 Security
 
@@ -874,7 +845,6 @@ Security requirements include:
 - Database access controls
 - Audit logging for admin actions
 
----
 
 # 📈 Development Roadmap
 
@@ -959,7 +929,6 @@ The primary goals of this portfolio are to:
 8. Provide an easy way to contact or hire me.
 9. Build a scalable personal digital platform.
 
----
 
 # 👨‍💻 Author
 
@@ -970,8 +939,6 @@ Software Developer | AI Engineer | Networks, Security & Cloud
 📍 Kathmandu, Nepal
 
 🌐 Portfolio: [https://www.jitendra-sharma.com.np/](https://www.jitendra-sharma.com.np/)
-
----
 
 # 📄 License
 
