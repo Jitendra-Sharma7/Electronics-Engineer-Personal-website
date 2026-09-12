@@ -1,6 +1,15 @@
 {
     "configurations": [
         {
+            "name": "Attach",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node"
+        },
+        {
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
@@ -52,15 +61,7 @@
                 "hidden": true
             }
         },
-        {
-            "type": "vscode-edge-devtools.debug",
-            "name": "Open Edge DevTools",
-            "request": "attach",
-            "url": "c:\\Users\\Dell\\.antigravity\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.10-universal\\out\\startpage\\index.html", // Provide your project's url to finish configuring
-            "presentation": {
-                "hidden": true
-            }
-        }
+       
     ],
     "compounds": [
         {
