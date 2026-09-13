@@ -166,7 +166,7 @@
       results: "Accelerated application submission turnaround by 35% and centralized documentation for multi-branch counseling teams.",
       challenges: "Handling heterogeneous university requirements and dynamic visa checklist rules across multiple international jurisdictions.",
       github: "https://github.com/Jitendra83-coder",
-      demo: "https://route2unigroup.com/"
+      demo: "https://www.jitendra-sharma.com.np/"
     },
     {
       id: "ehr-ehmis-systems",
