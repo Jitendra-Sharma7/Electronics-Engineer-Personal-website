@@ -464,6 +464,30 @@
     </div>
   </div>
 
+  <!-- Blog Article Reader Modal (populated by script.js) -->
+  <div class="modal-backdrop" id="blogArticleModal" role="dialog" aria-modal="true" aria-labelledby="blogModalTitle">
+    <div class="case-study-dialog">
+      <div class="case-study-header">
+        <div>
+          <span class="project-category-tag" id="blogModalCategory">Article</span>
+          <h2 class="project-title" id="blogModalTitle" style="margin-top:6px; margin-bottom:0;">Article Title</h2>
+          <div style="display:flex; gap:16px; margin-top:8px; font-size:0.82rem; color:var(--text-muted); font-family:var(--font-mono);">
+            <span id="blogModalDate"></span>
+            <span id="blogModalReadTime"></span>
+          </div>
+        </div>
+        <button type="button" class="case-study-close-btn" id="blogModalClose" aria-label="Close Article">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="case-study-body">
+        <p class="case-study-text" id="blogModalExcerpt"></p>
+        <div class="blog-article-body" id="blogModalContent"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ======================================================================
        5. Experience Timeline Section 
        ====================================================================== -->
@@ -480,7 +504,7 @@
         </p>
       </div>
 
-      <div class="timeline-container">
+      <div class="timeline-container" id="experienceTimeline">
         <!-- Experience 1: Route2Uni -->
         <div class="timeline-card-item">
           <div class="timeline-marker"></div>
@@ -639,7 +663,7 @@
         </p>
       </div>
 
-      <div class="skills-pillars-container">
+      <div class="skills-pillars-container" id="skillsPillars">
         <!-- Pillar 1: Software Development -->
         <div class="skill-pillar-group">
           <div class="skill-pillar-header">
@@ -924,7 +948,7 @@
         </p>
       </div>
 
-      <div class="certs-grid">
+      <div class="certs-grid" id="certificationsGrid">
         <!-- Cert 1 -->
         <div class="cert-card">
           <div>
@@ -1016,7 +1040,7 @@
           <h3 class="section-title" style="font-size:2rem;">Formal Education</h3>
         </div>
 
-        <div class="bento-grid">
+<div class="bento-grid" id="educationGrid">
           <!-- B.Tech Card -->
           <div class="bento-card" style="grid-column:span 6;">
             <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
@@ -1285,6 +1309,7 @@
   <!-- Firebase Compat Scripts for Real-time Cloud Sync -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="admin/site-defaults.js"></script>
   <script src="admin/firebase-config.js"></script>
 
   <!-- Core Script -->

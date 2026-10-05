@@ -1525,6 +1525,72 @@ ul, ol {
   margin-bottom: 16px;
 }
 
+.blog-card-actions {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Admin-managed section empty states */
+.section-empty-note {
+  text-align: center;
+  padding: 36px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-medium);
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+/* Blog article reader content */
+.blog-article-body {
+  font-size: 0.98rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.blog-article-body h3,
+.blog-article-body h4,
+.blog-article-body h5 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  margin: 26px 0 10px 0;
+}
+
+.blog-article-body h3 { font-size: 1.3rem; }
+.blog-article-body h4 { font-size: 1.12rem; }
+.blog-article-body h5 { font-size: 1rem; }
+
+.blog-article-body p {
+  margin-bottom: 16px;
+}
+
+.blog-article-body ul {
+  list-style: disc;
+  padding-left: 22px;
+  margin: 0 0 18px 0;
+}
+
+.blog-article-body li {
+  margin-bottom: 8px;
+}
+
+.blog-article-body strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.blog-article-body code {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--accent-cyan);
+}
+
 /* --------------------------------------------------------------------------
    15. Contact Section & Form
    -------------------------------------------------------------------------- */

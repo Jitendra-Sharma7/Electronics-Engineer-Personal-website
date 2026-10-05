@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// ===========================================================================
+// Firestore rules for the portfolio site (project: jitendra-sharma-portfoli-945d6)
+//
+// Documents used by the site (all inside the single "portfolioData" collection):
+//   experienceItems.items   Skills / career timeline
+//   skillPillars.pillars    Skills Ecosystem pillars and their skills
+//   certifications.items    Certifications
+//   educationItems.items    Education
+//   blogItems.items         Blog articles
+//   learningCourses.courses Learning Hub topics
+//   projectsList.projects   Projects & case studies
+//   contactMessages.messages Visitor inquiries
+//   siteProfile             Hero / about / contact details
+//
+// HOW THESE RULES APPLY
+//   * The public site must READ these documents so every visitor sees the same
+//     content that was saved in the Admin Command Center -> allow read: true.
+//   * The Admin Command Center saves with the browser's client SDK only (no
+//     Firebase Auth), so writes cannot be attributed to a signed-in account.
+//     Writes are therefore allowed for any client that reaches the database.
+//     Keep /admin/ protected at the hosting layer (the htaccess template in
+//     admin/ does this on cPanel) and treat the panel as a trusted editor.
+//   * To make writes authenticated, sign the panel in with Firebase Auth and
+//     replace the `allow write: if true;` line below with a membership check,
+//     e.g. `allow write: if request.auth != null && request.auth.token.admin == true;`
+//
+// Deploy by pasting these rules into Firebase Console > Firestore Database >
+// Rules > Publish. Nothing in this repository deploys them automatically.
+// ===========================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /portfolioData/{document} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+  }
+}

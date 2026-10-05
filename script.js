@@ -347,6 +347,104 @@
   ];
 
   // ==========================================================================
+  // 2b. Content Store — admin-managed datasets (localStorage + Firestore)
+  // ==========================================================================
+  // Records saved from the Admin Command Center live in localStorage first and
+  // are mirrored to Firestore. Resolution order for every section below:
+  //   localStorage  ->  Firestore  ->  built-in defaults (site-defaults.js)
+  const PORTFOLIO_DEFAULTS = window.PORTFOLIO_DEFAULTS || {};
+
+  // localStorage key -> { doc, field } inside the portfolioData collection
+  const CLOUD_SOURCES = {
+    experience_items: { doc: 'experienceItems', field: 'items' },
+    skill_pillars: { doc: 'skillPillars', field: 'pillars' },
+    certification_items: { doc: 'certifications', field: 'items' },
+    education_items: { doc: 'educationItems', field: 'items' },
+    blog_items: { doc: 'blogItems', field: 'items' },
+    learning_items: { doc: 'learningCourses', field: 'courses' },
+    custom_projects: { doc: 'projectsList', field: 'projects' }
+  };
+
+  function esc(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function splitList(raw) {
+    if (Array.isArray(raw)) return raw.map(v => String(v).trim()).filter(Boolean);
+    return String(raw || '').split(',').map(v => v.trim()).filter(Boolean);
+  }
+
+  function defaultsFor(key, fallback) {
+    if (Array.isArray(fallback)) return fallback;
+    return Array.isArray(PORTFOLIO_DEFAULTS[key]) ? PORTFOLIO_DEFAULTS[key] : [];
+  }
+
+  /** Returns the local record (even when empty), or null when nothing is stored. */
+  function readLocal(key) {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch (e) {
+      console.warn(`Ignoring unreadable local record: ${key}`, e);
+      return null;
+    }
+  }
+
+  function readCollection(key, fallback) {
+    const local = readLocal(key);
+    return local !== null ? local : defaultsFor(key, fallback);
+  }
+
+  function fetchCloud(key) {
+    const source = CLOUD_SOURCES[key];
+    if (!source || !window.db) return Promise.resolve(null);
+
+    return window.db.collection('portfolioData').doc(source.doc).get()
+      .then(doc => {
+        if (!doc.exists) return null;
+        const value = doc.data()[source.field];
+        return Array.isArray(value) ? value : null;
+      })
+      .catch(err => {
+        console.log(`Cloud read unavailable for ${source.doc}`, err);
+        return null;
+      });
+  }
+
+  function cacheLocal(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      console.warn('Could not cache cloud record locally:', e);
+    }
+  }
+
+  /**
+   * Pull in records that were saved from the admin panel on another device
+   * (this visitor has no local copy yet), then repaint the page content.
+   */
+  function hydrateFromCloud() {
+    if (!window.db) return Promise.resolve(0);
+
+    const pending = Object.keys(CLOUD_SOURCES).filter(key => readLocal(key) === null);
+    if (pending.length === 0) return Promise.resolve(0);
+
+    return Promise.all(pending.map(key => fetchCloud(key).then(cloud => {
+      if (!cloud) return false;
+      cacheLocal(key, cloud);
+      return true;
+    }))).then(results => results.filter(Boolean).length);
+  }
+
+  // ==========================================================================
   // 3. Theme Controller (Dark / Light) with Zero-FOUC & Persistence
   // ==========================================================================
   function initTheme() {
@@ -485,23 +583,16 @@
   // ==========================================================================
   // 5. Projects Rendering & Filter Controller
   // ==========================================================================
+  function getProjects() {
+    const local = readLocal('custom_projects');
+    return local !== null ? local : projectsData;
+  }
+
   function renderProjects(category = 'all') {
     const grid = document.getElementById('projectsGrid');
     if (!grid) return;
 
-    // Check if projects are overridden in localStorage or Firestore
-    let allProjects = projectsData;
-    const stored = localStorage.getItem('custom_projects');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          allProjects = parsed;
-        }
-      } catch (e) {
-        console.warn('Using default projects data:', e);
-      }
-    }
+    const allProjects = getProjects();
 
     const filtered = category === 'all'
       ? allProjects
@@ -516,24 +607,24 @@
       card.className = `bento-card ${isLarge ? 'project-card-featured' : 'project-card-standard'}`;
       card.setAttribute('data-id', p.id);
 
-      const techBadges = p.techStack.map(t => `<span class="tech-tag">${t}</span>`).join('');
+      const techBadges = splitList(p.techStack).map(t => `<span class="tech-tag">${esc(t)}</span>`).join('');
 
       card.innerHTML = `
         <div>
           <div class="project-header-meta">
-            <span class="project-category-tag">${p.categoryDisplay || p.category}</span>
+            <span class="project-category-tag">${esc(p.categoryDisplay || p.category)}</span>
             <div class="project-links">
-              ${p.github ? `<a href="${p.github}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" style="width:34px; height:34px; font-size:0.9rem;" title="View Source"><i class="fab fa-github"></i></a>` : ''}
-              ${p.demo ? `<a href="${p.demo}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" style="width:34px; height:34px; font-size:0.9rem;" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>` : ''}
+              ${p.github ? `<a href="${esc(p.github)}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" style="width:34px; height:34px; font-size:0.9rem;" title="View Source"><i class="fab fa-github"></i></a>` : ''}
+              ${p.demo ? `<a href="${esc(p.demo)}" target="_blank" rel="noopener noreferrer" class="social-icon-btn" style="width:34px; height:34px; font-size:0.9rem;" title="Live Demo"><i class="fas fa-external-link-alt"></i></a>` : ''}
             </div>
           </div>
-          <h3 class="project-title">${p.title}</h3>
-          <p class="project-overview">${p.overview}</p>
+          <h3 class="project-title">${esc(p.title)}</h3>
+          <p class="project-overview">${esc(p.overview)}</p>
         </div>
         <div>
           <div class="project-tech-tags">${techBadges}</div>
           <div class="project-footer-actions">
-            <button type="button" class="project-action-link view-case-study-btn" data-project-id="${p.id}">
+            <button type="button" class="project-action-link view-case-study-btn" data-project-id="${esc(p.id)}">
               <span>View Case Study</span>
               <i class="fas fa-arrow-right"></i>
             </button>
@@ -569,7 +660,7 @@
   // 6. Case Study Modal Engine
   // ==========================================================================
   function openCaseStudyModal(projectId) {
-    const project = projectsData.find(p => p.id === projectId);
+    const project = getProjects().find(p => p.id === projectId);
     if (!project) return;
 
     const modal = document.getElementById('caseStudyModal');
@@ -577,7 +668,7 @@
 
     document.getElementById('modalTitle').textContent = project.title;
     document.getElementById('modalCategory').textContent = project.categoryDisplay || project.category;
-    document.getElementById('modalOverview').textContent = project.overview;
+    document.getElementById('modalOverview').textContent = project.overview || '';
     document.getElementById('modalProblem').textContent = project.problem || "Information detailed in case study.";
     document.getElementById('modalRole').textContent = project.role || "Lead technical execution & development.";
     document.getElementById('modalProcess').textContent = project.process || "Agile sprints, architecture modeling, code implementation, and integration testing.";
@@ -587,13 +678,14 @@
     // Tech Tags
     const tagsContainer = document.getElementById('modalTechTags');
     if (tagsContainer) {
-      tagsContainer.innerHTML = project.techStack.map(t => `<span class="tech-tag">${t}</span>`).join('');
+      tagsContainer.innerHTML = splitList(project.techStack).map(t => `<span class="tech-tag">${esc(t)}</span>`).join('');
     }
 
     // Features List
     const featuresList = document.getElementById('modalFeaturesList');
     if (featuresList) {
-      featuresList.innerHTML = (project.features || []).map(f => `<li style="margin-bottom:8px; display:flex; align-items:flex-start; gap:8px;"><i class="fas fa-check-circle" style="color:var(--accent-primary); margin-top:4px;"></i><span>${f}</span></li>`).join('');
+      const features = Array.isArray(project.features) ? project.features : splitList(project.features);
+      featuresList.innerHTML = features.map(f => `<li style="margin-bottom:8px; display:flex; align-items:flex-start; gap:8px;"><i class="fas fa-check-circle" style="color:var(--accent-primary); margin-top:4px;"></i><span>${esc(f)}</span></li>`).join('');
     }
 
     // Links
@@ -832,65 +924,331 @@
   }
 
   // ==========================================================================
-  // 10. Dynamic Blog & Learning Hub Cloud Sync (Firebase Firestore)
+  // 10. Admin-Managed Section Renderers (Experience, Skills, Certifications,
+  //     Education, Blog Articles & Learning Hub)
   // ==========================================================================
-  function loadCloudContent() {
+  function emptyNote(message) {
+    return `<p class="section-empty-note">${esc(message)}</p>`;
+  }
+
+  function renderExperience() {
+    const wrap = document.getElementById('experienceTimeline');
+    if (!wrap) return;
+
+    const items = readCollection('experience_items');
+    if (items.length === 0) {
+      wrap.innerHTML = emptyNote('Professional experience records are being refreshed. Please check back shortly.');
+      return;
+    }
+
+    wrap.innerHTML = items.map(item => {
+      const tags = splitList(item.tags).map(t => `<span class="tech-tag">${esc(t)}</span>`).join('');
+      return `
+        <div class="timeline-card-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content-card">
+            <div class="timeline-card-top">
+              <h3 class="timeline-role">${esc(item.role)}</h3>
+              ${item.duration ? `<span class="timeline-date-badge">${esc(item.duration)}</span>` : ''}
+            </div>
+            <div class="timeline-company">
+              <i class="${esc(item.icon || 'fas fa-building')}"></i> ${esc(item.company)}
+            </div>
+            ${item.description ? `<p class="timeline-desc">${esc(item.description)}</p>` : ''}
+            ${tags ? `<div class="project-tech-tags" style="margin-bottom:0;">${tags}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderSkillPillars() {
+    const wrap = document.getElementById('skillsPillars');
+    if (!wrap) return;
+
+    const pillars = readCollection('skill_pillars');
+    if (pillars.length === 0) {
+      wrap.innerHTML = emptyNote('The skills ecosystem is being updated.');
+      return;
+    }
+
+    wrap.innerHTML = pillars.map(pillar => {
+      const skills = Array.isArray(pillar.skills) ? pillar.skills : [];
+      const cards = skills.map(skill => `
+            <div class="tech-ecosystem-card">
+              <div class="tech-eco-head">
+                <i class="${esc(skill.icon || 'fas fa-code')} tech-eco-icon"></i>
+                <span class="tech-eco-name">${esc(skill.name)}</span>
+              </div>
+              ${skill.description ? `<p class="tech-eco-desc">${esc(skill.description)}</p>` : ''}
+            </div>
+        `).join('');
+
+      return `
+        <div class="skill-pillar-group">
+          <div class="skill-pillar-header">
+            <div class="skill-pillar-icon"><i class="${esc(pillar.icon || 'fas fa-layer-group')}"></i></div>
+            <h3 class="skill-pillar-name">${esc(pillar.name)}</h3>
+          </div>
+          <div class="skills-cards-subgrid">${cards}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderCertifications() {
+    const grid = document.getElementById('certificationsGrid');
+    if (!grid) return;
+
+    const items = readCollection('certification_items');
+    if (items.length === 0) {
+      grid.innerHTML = emptyNote('Certification records are being refreshed.');
+      return;
+    }
+
+    grid.innerHTML = items.map(item => {
+      const title = item.link
+        ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer" class="cert-title" style="text-decoration:none;">${esc(item.name)}</a>`
+        : `<h3 class="cert-title">${esc(item.name)}</h3>`;
+
+      return `
+        <div class="cert-card">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <span class="badge">${esc(item.category || 'Certification')}</span>
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);">${esc(item.year || 'Verified')}</span>
+            </div>
+            ${title}
+            <p class="cert-issuer">${esc(item.issuer)}</p>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.85rem;">
+            <span style="color:var(--text-muted);"><i class="fas fa-award" style="color:var(--accent-primary); margin-right:6px;"></i>Certified</span>
+            <span style="color:var(--accent-primary); font-weight:600;">${esc(item.status || 'Active')}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderEducation() {
+    const grid = document.getElementById('educationGrid');
+    if (!grid) return;
+
+    const items = readCollection('education_items');
+    if (items.length === 0) {
+      grid.innerHTML = emptyNote('Academic background records are being refreshed.');
+      return;
+    }
+
+    grid.innerHTML = items.map(item => {
+      const isSecondary = item.accent === 'secondary';
+      const iconBg = isSecondary ? 'rgba(99,102,241,0.15)' : 'rgba(var(--accent-primary-rgb),0.15)';
+      const iconColor = isSecondary ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+      const institutionColor = isSecondary ? 'var(--accent-secondary)' : 'var(--accent-primary)';
+
+      return `
+        <div class="bento-card" style="grid-column:span 6;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div class="about-pillar-icon" style="background:${iconBg}; color:${iconColor};">
+              <i class="${esc(item.icon || 'fas fa-graduation-cap')}"></i>
+            </div>
+            <div>
+              ${item.level ? `<span class="badge">${esc(item.level)}</span>` : ''}
+              <span style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); margin-left:8px;">${esc(item.period || '')}</span>
+            </div>
+          </div>
+          <h4 style="font-family:var(--font-heading); font-size:1.3rem; margin-bottom:8px; color:var(--text-primary);">
+            ${esc(item.degree)}
+          </h4>
+          <p style="font-size:0.95rem; color:${institutionColor}; font-weight:600; margin-bottom:12px;">
+            ${esc(item.institution)}
+          </p>
+          ${item.description ? `<p style="font-size:0.9rem; color:var(--text-secondary); line-height:1.6;">${esc(item.description)}</p>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function blogEmptyState() {
+    return `
+      <div class="blog-empty-state">
+        <i class="fas fa-feather-pointed blog-empty-icon"></i>
+        <h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:8px; color:var(--text-primary);">
+          Articles in Preparation
+        </h3>
+        <p style="font-size:0.92rem; color:var(--text-secondary); max-width:480px; margin:0 auto 16px auto;">
+          New technical writeups on enterprise CRM design, e-HMIS healthcare implementation, and Linux infrastructure are being published shortly.
+        </p>
+        <a href="admin/" class="btn btn-secondary btn-sm">
+          <i class="fas fa-pen-to-square"></i> Manage in Admin Panel
+        </a>
+      </div>
+    `;
+  }
+
+  function renderBlogPosts() {
     const blogGrid = document.getElementById('blogPostsGrid');
-    const learningContainer = document.getElementById('learningCoursesList');
+    if (!blogGrid) return;
 
-    if (window.db) {
-      // Sync Blog Posts
-      window.db.collection('portfolioData').doc('blogItems').get().then(doc => {
-        if (doc.exists && doc.data().items && doc.data().items.length > 0) {
-          renderBlogPosts(doc.data().items);
-        }
-      }).catch(err => console.log('Firestore Blog Read Note:', err));
+    const posts = readCollection('blog_items');
+    if (posts.length === 0) {
+      blogGrid.innerHTML = blogEmptyState();
+      return;
+    }
 
-      // Sync Learning Hub
-      window.db.collection('portfolioData').doc('learningCourses').get().then(doc => {
-        if (doc.exists && doc.data().courses && doc.data().courses.length > 0) {
-          renderLearningCourses(doc.data().courses);
+    blogGrid.innerHTML = posts.map((p, idx) => {
+      const body = String(p.content || '');
+      const excerpt = p.excerpt || (body ? `${body.slice(0, 120).trim()}...` : '');
+      return `
+        <article class="blog-card">
+          <div>
+            <span class="badge" style="margin-bottom:12px;">${esc(p.category || 'Engineering')}</span>
+            <h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:10px; color:var(--text-primary);">${esc(p.title)}</h3>
+            <p style="font-size:0.92rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">${esc(excerpt)}</p>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.82rem; color:var(--text-muted);">
+            <span>${esc(p.date || 'Recent Article')}</span>
+            <span style="color:var(--accent-primary); font-weight:600;"><i class="fas fa-book-reader" style="margin-right:4px;"></i>${esc(p.readTime || '5 min read')}</span>
+          </div>
+          <div class="blog-card-actions">
+            <button type="button" class="project-action-link read-article-btn" data-article-idx="${idx}">
+              <span>${body ? 'Read Article' : 'Preview Summary'}</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+            ${p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener noreferrer" class="project-action-link" style="margin-left:16px;"><span>Reference</span><i class="fas fa-external-link-alt"></i></a>` : ''}
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    blogGrid.querySelectorAll('.read-article-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openBlogArticle(parseInt(btn.getAttribute('data-article-idx'), 10));
+      });
+    });
+  }
+
+  /** Minimal markdown-ish formatter: escapes first, then applies safe markup. */
+  function formatArticleContent(text) {
+    const inline = value => esc(value)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/(^|\s)\*([^*]+)\*/g, '$1<em>$2</em>');
+
+    let html = '';
+    let inList = false;
+    const closeList = () => {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+    };
+
+    String(text || '').split(/\r?\n/).forEach(rawLine => {
+      const line = rawLine.trim();
+
+      if (!line) {
+        closeList();
+        return;
+      }
+
+      const heading = line.match(/^(#{1,4})\s+(.*)$/);
+      if (heading) {
+        closeList();
+        const level = Math.min(heading[1].length + 2, 5);
+        html += `<h${level}>${inline(heading[2])}</h${level}>`;
+        return;
+      }
+
+      const bullet = line.match(/^[-*]\s+(.*)$/);
+      if (bullet) {
+        if (!inList) {
+          html += '<ul>';
+          inList = true;
         }
-      }).catch(err => console.log('Firestore Learning Read Note:', err));
+        html += `<li>${inline(bullet[1])}</li>`;
+        return;
+      }
+
+      closeList();
+      html += `<p>${inline(line)}</p>`;
+    });
+
+    closeList();
+    return html || '<p>Full text coming soon.</p>';
+  }
+
+  function openBlogArticle(index) {
+    const posts = readCollection('blog_items');
+    const post = posts[index];
+    const modal = document.getElementById('blogArticleModal');
+    if (!post || !modal) return;
+
+    document.getElementById('blogModalCategory').textContent = post.category || 'Engineering';
+    document.getElementById('blogModalTitle').textContent = post.title;
+    document.getElementById('blogModalDate').textContent = post.date || '';
+    document.getElementById('blogModalReadTime').textContent = post.readTime || '5 min read';
+    document.getElementById('blogModalExcerpt').textContent = post.excerpt || '';
+    document.getElementById('blogModalContent').innerHTML = formatArticleContent(post.content);
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBlogArticle() {
+    const modal = document.getElementById('blogArticleModal');
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
     }
   }
 
-  function renderBlogPosts(posts) {
-    const blogGrid = document.getElementById('blogPostsGrid');
-    if (!blogGrid || !posts || posts.length === 0) return;
+  function initBlogModal() {
+    const modal = document.getElementById('blogArticleModal');
+    if (!modal) return;
 
-    blogGrid.innerHTML = posts.map(p => `
-      <article class="blog-card">
-        <div>
-          <span class="badge" style="margin-bottom:12px;">${p.category || 'Engineering'}</span>
-          <h3 style="font-family:var(--font-heading); font-size:1.25rem; margin-bottom:10px; color:var(--text-primary);">${p.title}</h3>
-          <p style="font-size:0.92rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">${p.excerpt || (p.content ? p.content.slice(0, 120) + '...' : '')}</p>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:14px; font-size:0.82rem; color:var(--text-muted);">
-          <span>${p.date || 'Recent Article'}</span>
-          <span style="color:var(--accent-primary); font-weight:600;"><i class="fas fa-book-reader" style="margin-right:4px;"></i>${p.readTime || '5 min read'}</span>
-        </div>
-      </article>
-    `).join('');
+    const closeBtn = document.getElementById('blogModalClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeBlogArticle);
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeBlogArticle();
+    });
   }
 
-  function renderLearningCourses(courses) {
+  function renderLearningCourses() {
     const container = document.getElementById('learningCoursesList');
-    if (!container || !courses || courses.length === 0) return;
+    if (!container) return;
+
+    const courses = readCollection('learning_items');
+    if (courses.length === 0) {
+      container.innerHTML = emptyNote('The knowledge base is being curated.');
+      return;
+    }
 
     container.innerHTML = courses.map(c => `
       <div class="tech-ecosystem-card">
         <div class="tech-eco-head">
-          <i class="fas fa-graduation-cap tech-eco-icon"></i>
-          <span class="tech-eco-name">${c.title}</span>
+          <i class="${esc(c.icon || 'fas fa-graduation-cap')} tech-eco-icon"></i>
+          ${c.link
+        ? `<a href="${esc(c.link)}" target="_blank" rel="noopener noreferrer" class="tech-eco-name" style="text-decoration:underline;">${esc(c.title)}</a>`
+        : `<span class="tech-eco-name">${esc(c.title)}</span>`}
         </div>
-        <p class="tech-eco-desc">${c.description || 'Curriculum notes, practice labs, and study material.'}</p>
+        ${c.description ? `<p class="tech-eco-desc">${esc(c.description)}</p>` : ''}
         <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
-          <span class="badge" style="font-size:0.75rem;">${c.category || 'Technology'}</span>
-          <span style="font-size:0.8rem; color:var(--text-muted);">${c.progress || 'Completed'}</span>
+          <span class="badge" style="font-size:0.75rem;">${esc(c.category || 'Technology')}</span>
+          <span style="font-size:0.8rem; color:var(--text-muted);">${esc(c.progress || 'Completed')}</span>
         </div>
       </div>
     `).join('');
+  }
+
+  function renderManagedSections() {
+    renderExperience();
+    renderSkillPillars();
+    renderCertifications();
+    renderEducation();
+    renderBlogPosts();
+    renderLearningCourses();
   }
 
   // ==========================================================================
@@ -905,7 +1263,17 @@
     initCaseStudyModal();
     fetchGitHubData();
     initContactForm();
-    loadCloudContent();
+    initBlogModal();
+
+    // Admin-managed sections: paint immediately from localStorage / defaults,
+    // then upgrade to cloud records saved from another device.
+    renderManagedSections();
+    hydrateFromCloud().then(count => {
+      if (count > 0) {
+        renderManagedSections();
+        renderProjects('all');
+      }
+    });
 
     // Language switcher toggle
     const langBtn = document.getElementById('langToggleBtn');
