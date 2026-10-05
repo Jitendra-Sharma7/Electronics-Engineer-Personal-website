@@ -1,12 +1,3 @@
-// ============================================================
-// Firebase initialization (shared by admin.js and script.js)
-// Used to sync Blog posts & Learning courses across ALL
-// browsers/devices, instead of only the local browser's
-// localStorage. Loaded via CDN <script> tags before admin.js /
-// script.js in the HTML files, so it must stay compatible with
-// the Firebase "compat" (non-module) SDK.
-// ============================================================
-
 const firebaseConfig = {
     apiKey: "AIzaSyCeQMG9EKm7JhhXGcf9iVQazXKgEKKUN1M",
     authDomain: "jitendra-sharma-portfoli-945d6.firebaseapp.com",

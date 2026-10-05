@@ -1353,7 +1353,7 @@
         const computedPassHash = await sha256(pass);
 
         if (
-          (user === 'admin' && (pass === 'password123' || computedPassHash === VALID_PASSWORD_HASH)) ||
+          (user === 'jitendra.route2uni@gmail.com' && (pass === 'Jitendra@83' || computedPassHash === VALID_PASSWORD_HASH)) ||
           (computedUserHash === DEFAULT_USER_HASH && computedPassHash === VALID_PASSWORD_HASH) ||
           sessionStorage.getItem('admin_authenticated') === 'true'
         ) {
