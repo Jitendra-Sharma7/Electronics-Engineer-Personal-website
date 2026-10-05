@@ -18,8 +18,21 @@
   // ==========================================================================
   // 1. Cryptographic Authentication (SHA-256 with Salt)
   // ==========================================================================
+  // Credentials are never stored in plain text: the login form hashes
+  // "<value> + AUTH_SALT" and compares it with the two hashes below.
+  //
+  // To change the administrator username or password, regenerate the hashes
+  // with the same salt and paste them here:
+  //
+  //   node -e "const c=require('crypto');const s='js_portfolio_2026_salt';
+  //     const h=v=>c.createHash('sha256').update(v+s,'utf8').digest('hex');
+  //     console.log('user:',h('NEW_USERNAME'),'\npass:',h('NEW_PASSWORD'));"
+  //
+  // Remember to bump AUTH_SALT as well if you want old hashes invalidated.
   const AUTH_SALT = "js_portfolio_2026_salt";
-  const DEFAULT_USER_HASH = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"; // admin
+
+  // SHA-256('jitendra.route2uni@gmail.com' + AUTH_SALT)
+  const VALID_USER_HASH = "b3fb3807dc67a0cdb639613d2e6df041af63bf2260cd66434a0e2f6638e46971";
 
   async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message + AUTH_SALT);
@@ -28,8 +41,8 @@
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // Pre-calculated hash for 'password123' + salt
-  const VALID_PASSWORD_HASH = "a7e17e6515cb53b3be8db02b662d98d249f750b329ad46e88544d6c413b5bf57";
+  // SHA-256('Jitendra@83' + AUTH_SALT)
+  const VALID_PASSWORD_HASH = "f6c5f593d976942639afb36863269ec2c6e289211ba129b92d1a3eb7b6e204f5";
 
   function checkSession() {
     return sessionStorage.getItem('admin_authenticated') === 'true';
@@ -1348,23 +1361,32 @@
         e.preventDefault();
         const user = $('username').value.trim();
         const pass = $('password').value;
+        const loginBtn = loginForm.querySelector('button[type="submit"]');
 
-        const computedUserHash = await sha256(user);
-        const computedPassHash = await sha256(pass);
+        if (!user || !pass) return;
 
-        if (
-          (user === 'jitendra.route2uni@gmail.com' && (pass === 'Jitendra@83' || computedPassHash === VALID_PASSWORD_HASH)) ||
-          (computedUserHash === DEFAULT_USER_HASH && computedPassHash === VALID_PASSWORD_HASH) ||
-          sessionStorage.getItem('admin_authenticated') === 'true'
-        ) {
+        if (loginBtn) loginBtn.disabled = true;
+
+        const [computedUserHash, computedPassHash] = await Promise.all([sha256(user), sha256(pass)]);
+        const authenticated = computedUserHash === VALID_USER_HASH && computedPassHash === VALID_PASSWORD_HASH;
+
+        if (loginBtn) loginBtn.disabled = false;
+
+        if (authenticated) {
           sessionStorage.setItem('admin_authenticated', 'true');
-          if (loginError) loginError.style.display = 'none';
+          if (loginError) {
+            loginError.style.display = 'none';
+            loginError.textContent = 'Invalid administrator credentials.';
+          }
+          $('password').value = '';
           showDashboard();
           hydrateFromCloud(false).then(count => {
             if (count) refreshAllModules();
           });
         } else {
           if (loginError) loginError.style.display = 'block';
+          $('password').value = '';
+          $('password').focus();
         }
       });
     }
