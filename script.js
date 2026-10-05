@@ -850,11 +850,17 @@
       existing.unshift(submission);
       localStorage.setItem('contact_submissions', JSON.stringify(existing));
 
-      // If Firebase Firestore is active, save to cloud
+      // Cloud copy: append with arrayUnion so a visitor can never overwrite or
+      // truncate messages that other visitors have already submitted.
       if (window.db) {
-        window.db.collection('portfolioData').doc('contactMessages').set({
-          messages: existing
-        }).catch(err => console.warn('Firestore message sync notice:', err));
+        try {
+          const append = firebase.firestore.FieldValue.arrayUnion(submission);
+          window.db.collection('portfolioData').doc('contactMessages')
+            .set({ messages: append })
+            .catch(err => console.warn('Firestore message sync notice:', err));
+        } catch (err) {
+          console.warn('Firestore message sync unavailable:', err);
+        }
       }
 
       setTimeout(() => {

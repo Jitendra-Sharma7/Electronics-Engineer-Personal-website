@@ -4,6 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots-exclude-all" content="all">
   <title>Admin Command Center | Jitendra Sharma Portfolio</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,12 +26,13 @@
         <h2>Admin Command Center</h2>
         <p>Portfolio Management & Content Operations</p>
       </div>
-      <form id="login-form">
+      <form id="login-form" autocomplete="off">
         <div class="input-group">
-          <label for="username">Username</label>
+          <label for="username">Administrator Email</label>
           <div class="input-icon">
             <i class="fas fa-user"></i>
-            <input type="text" id="username" placeholder="Enter Username" autocomplete="username" required>
+            <input type="email" id="username" placeholder="admin@example.com" inputmode="email"
+              autocomplete="username" spellcheck="false" required>
           </div>
         </div>
         <div class="input-group">
@@ -41,6 +46,10 @@
         <button type="submit" class="btn-login">
           <i class="fas fa-shield-halved"></i> Secure Login
         </button>
+        <p style="margin-top:18px; font-size:0.78rem; color:var(--text-muted); line-height:1.5;">
+          Access is verified by Firebase Authentication. This page is excluded from search engines and is not
+          a public URL.
+        </p>
       </form>
     </div>
   </div>
@@ -681,6 +690,7 @@
 
   <!-- Firebase Compat Scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="site-defaults.js"></script>
   <script src="firebase-config.js"></script>

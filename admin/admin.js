@@ -16,33 +16,24 @@
   'use strict';
 
   // ==========================================================================
-  // 1. Cryptographic Authentication (SHA-256 with Salt)
+  // 1. Authentication (Firebase Email/Password - server verified)
   // ==========================================================================
-  // Credentials are never stored in plain text: the login form hashes
-  // "<value> + AUTH_SALT" and compares it with the two hashes below.
+  // Login is checked by Firebase Authentication, not by this file. That means
+  // the password is never present in the code, the check cannot be bypassed by
+  // editing JavaScript, and Firestore security rules can trust that a write
+  // really came from the signed-in administrator.
   //
-  // To change the administrator username or password, regenerate the hashes
-  // with the same salt and paste them here:
+  // Firestore write access is granted in firestore.rules to the signed-in
+  // address only. Public visitors keep read-only access, so the public site
+  // still renders every section.
   //
-  //   node -e "const c=require('crypto');const s='js_portfolio_2026_salt';
-  //     const h=v=>c.createHash('sha256').update(v+s,'utf8').digest('hex');
-  //     console.log('user:',h('NEW_USERNAME'),'\npass:',h('NEW_PASSWORD'));"
-  //
-  // Remember to bump AUTH_SALT as well if you want old hashes invalidated.
-  const AUTH_SALT = "js_portfolio_2026_salt";
+  // To change the administrator account: Firebase Console > Authentication >
+  // Sign-in method (enable Email/Password) > Users > Add user. No code change
+  // is needed, and no credential is ever committed to this repository.
 
-  // SHA-256('jitendra.route2uni@gmail.com' + AUTH_SALT)
-  const VALID_USER_HASH = "b3fb3807dc67a0cdb639613d2e6df041af63bf2260cd66434a0e2f6638e46971";
-
-  async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message + AUTH_SALT);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  function authAvailable() {
+    return !!window.auth;
   }
-
-  // SHA-256('Jitendra@83' + AUTH_SALT)
-  const VALID_PASSWORD_HASH = "f6c5f593d976942639afb36863269ec2c6e289211ba129b92d1a3eb7b6e204f5";
 
   function checkSession() {
     return sessionStorage.getItem('admin_authenticated') === 'true';
@@ -982,18 +973,75 @@
   // ==========================================================================
   // 7. Inquiries / Messages Inbox Module
   // ==========================================================================
+  // Visitor submissions arrive in the shared Firestore document
+  // portfolioData/contactMessages (public append-only write). The inbox merges
+  // that cloud list with anything captured in this browser, newest first.
+  let inboxCache = [];
+
+  function localMessages() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function mergeMessages(cloudList, localList) {
+    const seen = new Set();
+    const merged = [];
+
+    [...(Array.isArray(cloudList) ? cloudList : []), ...(Array.isArray(localList) ? localList : [])].forEach(m => {
+      if (!m || typeof m !== 'object') return;
+      const key = `${m.date || ''}|${m.email || ''}|${String(m.message || '').slice(0, 60)}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      merged.push(m);
+    });
+
+    return merged.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+  }
+
+  function saveInbox(messages) {
+    inboxCache = Array.isArray(messages) ? messages : [];
+    try {
+      localStorage.setItem('contact_submissions', JSON.stringify(inboxCache));
+    } catch (e) {
+      console.warn('Could not cache inbox locally:', e);
+    }
+    if (window.db) {
+      window.db.collection('portfolioData').doc('contactMessages')
+        .set({ messages: inboxCache })
+        .catch(err => console.warn('Firestore inbox sync notice:', err));
+    }
+  }
+
+  function fetchInboxFromCloud() {
+    if (!window.db) return Promise.resolve(inboxCache.length);
+
+    return window.db.collection('portfolioData').doc('contactMessages').get()
+      .then(doc => {
+        const cloud = (doc.exists && Array.isArray(doc.data().messages)) ? doc.data().messages : [];
+        inboxCache = mergeMessages(cloud, localMessages());
+        try {
+          localStorage.setItem('contact_submissions', JSON.stringify(inboxCache));
+        } catch (e) { /* storage may be unavailable */ }
+        renderMessagesInbox();
+        updateStats();
+        return inboxCache.length;
+      })
+      .catch(err => {
+        console.warn('Could not load the cloud inbox:', err);
+        return inboxCache.length;
+      });
+  }
+
   function renderMessagesInbox() {
     const list = $('messages-inbox-list');
     const badge = $('sidebarMsgBadge');
     if (!list) return;
 
-    let messages = [];
-    try {
-      messages = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
-      if (!Array.isArray(messages)) messages = [];
-    } catch (e) {
-      messages = [];
-    }
+    const messages = inboxCache;
 
     if (badge) {
       if (messages.length > 0) {
@@ -1036,16 +1084,11 @@
     list.querySelectorAll('.delete-msg-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-idx'), 10);
-        const current = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
-        if (idx < 0 || idx >= current.length) return;
-        current.splice(idx, 1);
-        localStorage.setItem('contact_submissions', JSON.stringify(current));
+        if (idx < 0 || idx >= inboxCache.length) return;
+        const remaining = inboxCache.filter((_, i) => i !== idx);
+        saveInbox(remaining);
         renderMessagesInbox();
         updateStats();
-        if (window.db) {
-          window.db.collection('portfolioData').doc('contactMessages')
-            .set({ messages: current }).catch(() => { });
-        }
       });
     });
 
@@ -1053,13 +1096,9 @@
     if (clearAllBtn) {
       clearAllBtn.onclick = () => {
         if (window.confirm('Clear all visitor messages?')) {
-          localStorage.removeItem('contact_submissions');
+          saveInbox([]);
           renderMessagesInbox();
           updateStats();
-          if (window.db) {
-            window.db.collection('portfolioData').doc('contactMessages')
-              .set({ messages: [] }).catch(() => { });
-          }
           toast('All inquiries cleared.');
         }
       };
@@ -1286,15 +1325,7 @@
     if (certCount) certCount.textContent = readItems('certification_items').length;
 
     const mCount = $('statTotalMessages');
-    if (mCount) {
-      let messages = [];
-      try {
-        messages = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
-      } catch (e) {
-        messages = [];
-      }
-      mCount.textContent = Array.isArray(messages) ? messages.length : 0;
-    }
+    if (mCount) mCount.textContent = inboxCache.length;
   }
 
   function refreshAllModules() {
@@ -1302,7 +1333,9 @@
     Object.values(collections).forEach(renderCollection);
     renderSkillsAdmin();
     refreshPillarSelect();
+    inboxCache = mergeMessages([], localMessages());
     renderMessagesInbox();
+    fetchInboxFromCloud();
   }
 
   // ==========================================================================
@@ -1356,37 +1389,82 @@
     const loginError = $('login-error');
     const logoutBtn = $('logout-btn');
 
+    function showAuthMessage(text, level) {
+      if (!loginError) return;
+      loginError.textContent = text;
+      loginError.classList.toggle('warning', level === 'warning');
+      loginError.style.display = 'block';
+    }
+
+    // Keep the signed-in state scoped to this browser tab.
+    if (authAvailable()) {
+      try {
+        window.auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => { });
+      } catch (e) {
+        console.warn('Could not set session persistence:', e);
+      }
+    }
+
     if (loginForm) {
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const user = $('username').value.trim();
+        const email = $('username').value.trim();
         const pass = $('password').value;
         const loginBtn = loginForm.querySelector('button[type="submit"]');
+        const originalLabel = loginBtn ? loginBtn.innerHTML : '';
 
-        if (!user || !pass) return;
+        if (!authAvailable()) {
+          showAuthMessage(
+            'Sign-in service unavailable. Firebase Authentication did not load - check your connection and reload.',
+            'warning'
+          );
+          return;
+        }
 
-        if (loginBtn) loginBtn.disabled = true;
+        if (!email || !pass) return;
 
-        const [computedUserHash, computedPassHash] = await Promise.all([sha256(user), sha256(pass)]);
-        const authenticated = computedUserHash === VALID_USER_HASH && computedPassHash === VALID_PASSWORD_HASH;
+        if (loginBtn) {
+          loginBtn.disabled = true;
+          loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+        }
 
-        if (loginBtn) loginBtn.disabled = false;
-
-        if (authenticated) {
+        try {
+          await window.auth.signInWithEmailAndPassword(email, pass);
           sessionStorage.setItem('admin_authenticated', 'true');
-          if (loginError) {
-            loginError.style.display = 'none';
-            loginError.textContent = 'Invalid administrator credentials.';
-          }
+          if (loginError) loginError.style.display = 'none';
           $('password').value = '';
           showDashboard();
           hydrateFromCloud(false).then(count => {
             if (count) refreshAllModules();
           });
-        } else {
-          if (loginError) loginError.style.display = 'block';
+        } catch (err) {
+          const code = (err && err.code) || '';
           $('password').value = '';
+
+          if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' ||
+            code === 'auth/user-not-found' || code === 'auth/invalid-email') {
+            showAuthMessage('Invalid administrator credentials.', 'error');
+          } else if (code === 'auth/operation-not-allowed' || code === 'auth/configuration-not-found' ||
+            code === 'auth/unauthorized-domain') {
+            showAuthMessage(
+              'Email/Password sign-in is not enabled for this Firebase project. See admin/FIREBASE-SETUP.md.',
+              'warning'
+            );
+          } else if (code === 'auth/too-many-requests') {
+            showAuthMessage('Too many failed attempts. Wait a moment and try again.', 'warning');
+          } else if (code === 'auth/network-request-failed') {
+            showAuthMessage('Network error while verifying. Check your connection and try again.', 'warning');
+          } else {
+            console.warn('Unexpected sign-in error:', err);
+            showAuthMessage('Sign-in failed. Please try again.', 'error');
+          }
+
           $('password').focus();
+        } finally {
+          if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = originalLabel;
+          }
         }
       });
     }
@@ -1395,11 +1473,23 @@
       logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('admin_authenticated');
         hideDashboard();
+        if (authAvailable()) {
+          window.auth.signOut().catch(err => console.warn('Sign-out failed:', err));
+        }
       });
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  // Bootstrap runs exactly once, even if this file is evaluated again or the
+// DOMContentLoaded event is delivered more than once. Without the guard every
+// editor button would receive a second click listener, so one click would save
+// the same record twice.
+  let booted = false;
+
+  function boot() {
+    if (booted) return;
+    booted = true;
+
     initTabs();
     registerAllCollections();
     initSkillsManager();
@@ -1408,14 +1498,30 @@
     initLogin();
     hydrateSimpleFields();
 
-    if (checkSession()) {
-      showDashboard();
-      hydrateFromCloud(false).then(count => {
-        if (count) refreshAllModules();
+    if (checkSession() && authAvailable()) {
+      // The panel stays locked until Firebase confirms a live session for this
+      // tab, because Firestore writes need a valid token to be accepted.
+      window.auth.onAuthStateChanged(user => {
+        if (user && checkSession()) {
+          showDashboard();
+          hydrateFromCloud(false).then(count => {
+            if (count) refreshAllModules();
+          });
+        } else {
+          sessionStorage.removeItem('admin_authenticated');
+          hideDashboard();
+        }
       });
     } else {
+      sessionStorage.removeItem('admin_authenticated');
       hideDashboard();
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 
 })();
