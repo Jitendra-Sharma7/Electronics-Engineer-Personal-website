@@ -428,20 +428,25 @@
   }
 
   /**
-   * Pull in records that were saved from the admin panel on another device
-   * (this visitor has no local copy yet), then repaint the page content.
+   * Always attempt to read from Firestore for all managed collections.
+   * Merges cloud data with local data (cloud wins for freshness),
+   * caches the merged result locally, and returns true if anything changed.
    */
   function hydrateFromCloud() {
-    if (!window.db) return Promise.resolve(0);
+    if (!window.db) return Promise.resolve(false);
 
-    const pending = Object.keys(CLOUD_SOURCES).filter(key => readLocal(key) === null);
-    if (pending.length === 0) return Promise.resolve(0);
+    return Promise.all(Object.keys(CLOUD_SOURCES).map(key =>
+      fetchCloud(key).then(cloud => {
+        if (!cloud || !Array.isArray(cloud) || cloud.length === 0) return false;
 
-    return Promise.all(pending.map(key => fetchCloud(key).then(cloud => {
-      if (!cloud) return false;
-      cacheLocal(key, cloud);
-      return true;
-    }))).then(results => results.filter(Boolean).length);
+        const local = readLocal(key);
+        // If local exists and is identical to cloud, no update needed
+        if (local && JSON.stringify(local) === JSON.stringify(cloud)) return false;
+
+        cacheLocal(key, cloud);
+        return true;
+      })
+    )).then(results => results.some(Boolean));
   }
 
   // ==========================================================================
@@ -1274,8 +1279,8 @@
     // Admin-managed sections: paint immediately from localStorage / defaults,
     // then upgrade to cloud records saved from another device.
     renderManagedSections();
-    hydrateFromCloud().then(count => {
-      if (count > 0) {
+    hydrateFromCloud().then(updated => {
+      if (updated) {
         renderManagedSections();
         renderProjects('all');
       }
