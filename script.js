@@ -1245,9 +1245,9 @@
         : `<span class="tech-eco-name">${esc(c.title)}</span>`}
         </div>
         ${c.description ? `<p class="tech-eco-desc">${esc(c.description)}</p>` : ''}
-        <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
-          <span class="badge" style="font-size:0.75rem;">${esc(c.category || 'Technology')}</span>
-          <span style="font-size:0.8rem; color:var(--text-muted);">${esc(c.progress || 'Completed')}</span>
+        <div class="tech-eco-meta">
+          <span class="badge">${esc(c.category || 'Technology')}</span>
+          <span class="progress">${esc(c.progress || 'Completed')}</span>
         </div>
       </div>
     `).join('');

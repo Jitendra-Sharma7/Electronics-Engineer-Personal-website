@@ -255,6 +255,7 @@ ul, ol {
 .text-gradient {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -1405,6 +1406,28 @@ ul, ol {
   font-size: 0.82rem;
   color: var(--text-muted);
   line-height: 1.45;
+}
+
+.tech-eco-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tech-eco-meta .badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+}
+
+.tech-eco-meta .progress {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* --------------------------------------------------------------------------
