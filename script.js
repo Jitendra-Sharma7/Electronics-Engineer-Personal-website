@@ -12,7 +12,6 @@
   // ==========================================================================
   const translations = {
     en: {
-      nav_home: "Home",
       nav_about: "About",
       nav_projects: "Projects",
       nav_experience: "Experience",
@@ -892,6 +891,57 @@
     const navbar = document.getElementById('navbar');
     const hamburger = document.getElementById('hamburger');
     const mobileOverlay = document.getElementById('mobileOverlay');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const tabNavLinks = document.querySelectorAll('.nav-menu .nav-link, .mobile-nav-links .nav-link');
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    const homeLink = navbar.querySelector('.logo[href="#home"]');
+
+    function showAllSections() {
+      sections.forEach(section => {
+        section.hidden = false;
+      });
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        link.removeAttribute('aria-current');
+      });
+    }
+
+    function showSection(sectionId) {
+      const selectedSection = document.getElementById(sectionId);
+      if (!selectedSection || !selectedSection.matches('section[id]')) return;
+
+      sections.forEach(section => {
+        section.hidden = section !== selectedSection && section.dataset.tabGroup !== sectionId;
+      });
+      navLinks.forEach(link => {
+        const isActive = link.getAttribute('href') === `#${sectionId}`;
+        link.classList.toggle('active', isActive);
+        if (isActive) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    tabNavLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        showSection(link.hash.slice(1));
+      });
+    });
+
+    if (homeLink) {
+      homeLink.addEventListener('click', showAllSections);
+    }
+
+    window.addEventListener('hashchange', () => {
+      const sectionId = window.location.hash.slice(1);
+      if (!sectionId || sectionId === 'home') {
+        showAllSections();
+      } else {
+        showSection(sectionId);
+      }
+    });
 
     window.addEventListener('scroll', () => {
       if (window.scrollY > 40) {
@@ -908,9 +958,8 @@
         document.body.style.overflow = mobileOverlay.classList.contains('active') ? 'hidden' : '';
       });
 
-      // Close mobile overlay when any tab trigger is clicked
-      mobileOverlay.querySelectorAll('.tab-trigger').forEach(trigger => {
-        trigger.addEventListener('click', () => {
+      mobileOverlay.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
           hamburger.classList.remove('active');
           mobileOverlay.classList.remove('active');
           document.body.style.overflow = '';
@@ -918,7 +967,24 @@
       });
     }
 
-    // Scroll-based section highlighting removed - using tabbed interface instead
+    // Highlight active section on scroll
+    window.addEventListener('scroll', () => {
+      const scrollPos = window.scrollY + 120;
+      sections.forEach(section => {
+        if (section.hidden) return;
+        const top = section.offsetTop;
+        const height = section.offsetHeight;
+        const id = section.getAttribute('id');
+        if (scrollPos >= top && scrollPos < top + height) {
+          navLinks.forEach(link => {
+            link.classList.toggle(
+              'active',
+              link.getAttribute('href') === `#${id}` || section.dataset.tabGroup === link.hash.slice(1)
+            );
+          });
+        }
+      });
+    });
   }
 
   // ==========================================================================
@@ -1250,70 +1316,9 @@
   }
 
   // ==========================================================================
-  // 11. Tab Switching Logic
+  // 11. Initialization Entrypoint
   // ==========================================================================
-  function initTabs() {
-    const tabTriggers = document.querySelectorAll('.tab-trigger');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-
-    if (!tabTriggers.length || !tabPanels.length) return;
-
-    function activateTab(tabId) {
-      // Update triggers
-      tabTriggers.forEach(trigger => {
-        const isActive = trigger.getAttribute('data-tab') === tabId;
-        trigger.setAttribute('aria-selected', isActive);
-        trigger.classList.toggle('active', isActive);
-      });
-
-      // Update panels
-      tabPanels.forEach(panel => {
-        const isActive = panel.getAttribute('id') === `panel-${tabId}`;
-        if (isActive) {
-          panel.hidden = false;
-          // Force reflow for animation
-          requestAnimationFrame(() => panel.classList.add('active'));
-        } else {
-          panel.classList.remove('active');
-          // Wait for animation to finish before hiding
-          setTimeout(() => {
-            if (!panel.classList.contains('active')) panel.hidden = true;
-          }, 300);
-        }
-      });
-
-      // Scroll to top when switching tabs
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Update URL hash without scrolling
-      history.replaceState(null, '', `#${tabId}`);
-    }
-
-    // Click handlers
-    tabTriggers.forEach(trigger => {
-      trigger.addEventListener('click', () => {
-        const tabId = trigger.getAttribute('data-tab');
-        if (tabId) activateTab(tabId);
-      });
-    });
-
-    // Handle initial hash
-    const hash = window.location.hash.slice(1);
-    const validTabs = ['home', 'about', 'projects', 'experience', 'skills', 'certifications', 'blog', 'learning', 'contact'];
-    if (hash && validTabs.includes(hash)) {
-      activateTab(hash);
-    } else {
-      activateTab('home');
-    }
-
-    // Handle browser back/forward
-    window.addEventListener('hashchange', () => {
-      const hash = window.location.hash.slice(1);
-      if (validTabs.includes(hash)) activateTab(hash);
-    });
-  }
   document.addEventListener('DOMContentLoaded', () => {
-    initTabs();
     initTheme();
     initNavigation();
     initHeroCanvas();

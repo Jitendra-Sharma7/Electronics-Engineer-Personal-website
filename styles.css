@@ -206,6 +206,10 @@ ul, ol {
   position: relative;
 }
 
+section[hidden] {
+  display: none !important;
+}
+
 .section-header {
   text-align: center;
   max-width: 760px;
@@ -1836,122 +1840,4 @@ ul, ol {
   .bento-card {
     padding: 22px;
   }
-}
-
-/* ==========================================================================
-   Tabbed Interface Styles
-   ========================================================================== */
-
-.tab-panels {
-  width: 100%;
-}
-
-/* Tab Triggers - Desktop Nav */
-.nav-link.tab-trigger {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font: inherit;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  transition: color var(--transition-fast), background var(--transition-fast);
-  border-radius: var(--radius-sm);
-  position: relative;
-}
-
-.nav-link.tab-trigger:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.nav-link.tab-trigger.active,
-.nav-link.tab-trigger[aria-selected="true"] {
-  color: var(--accent-primary);
-  background: rgba(var(--accent-primary-rgb), 0.12);
-}
-
-.nav-link.tab-trigger.active::after,
-.nav-link.tab-trigger[aria-selected="true"]::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 2px;
-  background: var(--accent-primary);
-  border-radius: 2px;
-}
-
-/* Tab Triggers - Mobile Nav */
-.mobile-nav-links .tab-trigger {
-  width: 100%;
-  text-align: left;
-  padding: 1rem 1.25rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  margin-bottom: 8px;
-  color: var(--text-secondary);
-  transition: all var(--transition-fast);
-}
-
-.mobile-nav-links .tab-trigger:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.mobile-nav-links .tab-trigger.active,
-.mobile-nav-links .tab-trigger[aria-selected="true"] {
-  background: rgba(var(--accent-primary-rgb), 0.15);
-  border-color: var(--accent-primary);
-  color: var(--accent-primary);
-}
-
-/* Tab Panels */
-.tab-panel {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  position: absolute;
-  width: 100%;
-  pointer-events: none;
-}
-
-.tab-panel.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-  position: relative;
-  pointer-events: auto;
-}
-
-/* Hero section as first tab - special handling */
-.tab-panel.hero-section {
-  position: relative;
-}
-
-.tab-panel[hidden] {
-  display: none !important;
-}
-
-/* Ensure sections inside tab panels render correctly */
-.tab-panel .section {
-  opacity: 1;
-}
-
-/* Footer tab triggers */
-.footer .tab-trigger {
-  font-size: 0.85rem;
-  padding: 0.25rem 0.5rem;
-  color: var(--text-muted);
-}
-
-.footer .tab-trigger:hover {
-  color: var(--accent-primary);
-}
-
-.footer .tab-trigger.active {
-  color: var(--accent-primary);
 }
